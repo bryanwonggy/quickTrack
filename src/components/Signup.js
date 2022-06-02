@@ -24,7 +24,7 @@ const Signup = () => {
 
   return (
     <div className="max-w-[700px] mx-auto my-16 p-4">
-        <h1 className="text-4xl font-bold py-2 text-center">StockTrack WebApp</h1>
+        <h1 className="text-4xl font-bold py-2 text-center">quickTrack</h1>
       <div>
         <h3 className="text-2xl font-bold py-2">Sign up for an account</h3>
         <p className="py-2">
