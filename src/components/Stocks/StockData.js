@@ -22,7 +22,14 @@ import Deposits from "../Dashboard/Deposits";
 import Orders from "../Dashboard/Orders";
 import axios from "axios";
 import Plot from "react-plotly.js";
-import "./StockData.css"
+import "./StockData.css";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import Button from "@mui/material/Button";
+import { UserAuth } from '../../context/AuthContext'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -32,9 +39,37 @@ const Item = styled(Paper)(({ theme }) => ({
   color: theme.palette.text.secondary,
 }));
 
+const action = [
+  {
+    value: "buy",
+    label: "BUY",
+  },
+  {
+    value: "sell",
+    label: "SELL",
+  },
+];
+
 function getRelevantData(data) {
-    const wantedInfo = ['companyName', 'currency', 'iexAskPrice', 'iexAskSize', 'iexBidPrice', 'iexBidSize', 'iexClose', 'iexOpen', 'iexVolume', 'marketCap', 'peRatio', 'previousClose', 'previousVolume', 'primaryExchange', 'week52High', 'week52Low'];
-    return wantedInfo.includes(data);
+  const wantedInfo = [
+    "companyName",
+    "currency",
+    "iexAskPrice",
+    "iexAskSize",
+    "iexBidPrice",
+    "iexBidSize",
+    "iexClose",
+    "iexOpen",
+    "iexVolume",
+    "marketCap",
+    "peRatio",
+    "previousClose",
+    "previousVolume",
+    "primaryExchange",
+    "week52High",
+    "week52Low",
+  ];
+  return wantedInfo.includes(data);
 }
 
 function StockData() {
@@ -44,6 +79,7 @@ function StockData() {
   const [tickerSymbol, updateTicker] = React.useState("");
   const IEX_API_Key = "pk_7ae7f450e7bd4274a7e4ded7019573ae"; //for stock summary data such as PE Ratio
   const [summaryData, updateSummaryData] = React.useState({});
+  const { user, logout } = UserAuth();
 
   const [timeSeriesData, updateTimeSeriesData] = React.useState({
     stockChartXValues: [],
@@ -92,10 +128,10 @@ function StockData() {
         //   //   tempSummaryInfo.push(str);
         // }
         for (let key in response.data) {
-            if (getRelevantData(key)) {
-                let obj = response.data[key];
-                tempSummaryInfo.push(obj);
-            }
+          if (getRelevantData(key)) {
+            let obj = response.data[key];
+            tempSummaryInfo.push(obj);
+          }
         }
         updateSummaryData(tempSummaryInfo);
         console.log(summaryData);
@@ -106,6 +142,34 @@ function StockData() {
       });
   }
 
+  //BuySellToggle
+  const [buysellaction, setBuySell] = React.useState("");
+  //Date Toggle
+  const [date, setDate] = React.useState(null);
+  //Select Stock
+  const [stock, setStock] = React.useState("");
+  //Select Quantity
+  const [quantity, setQuantity] = React.useState("");
+  //Select Price
+  const [price, setPrice] = React.useState("");
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    try {
+      console.log(buysellaction); //These are the variables to parse into backend function as inputs
+      console.log(date);
+      console.log(stock);
+      console.log(quantity);
+      console.log(price);
+      console.log(user.email)
+      //PSEUDOCODE
+      //IF buysellaction == "buy" => execute buystock(user.email, date, stock, quantity, price)
+      //IF buysellaction == "sell" => execute sellstock(user.email, date, stock, quantity, price)
+    } catch (error) {
+      console.log("pop up to be made still work in progress");
+    }
+  };
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={8}>
@@ -114,10 +178,12 @@ function StockData() {
             <label>Enter ticker symbol:</label>
             <input
               type="text"
+              class="txtbox"
               onChange={(e) => updateTextFunc(e.target.value)}
             ></input>
-            <button onClick={(event) => searchForStock(event)}>Submit</button>
-
+            <button class="button" onClick={(event) => searchForStock(event)}>
+              Submit
+            </button>
             {JSON.stringify(StockInfo) !== "{}" ? (
               <p>Now Displaying: {tickerSymbol}</p>
             ) : (
@@ -142,55 +208,144 @@ function StockData() {
       </Grid>
       <Grid item xs={4}>
         <Item>
-        <div id="containerIntro">
-        <h1>Ask Price: </h1>
-        <p>{summaryData[2] !== 0 ? summaryData[2]: "Market Not Open"}</p>
-      </div>
-      <div id="containerIntro">
-        <h1>Ask Size: </h1>
-        <p>{summaryData[3] !== 0 ? summaryData[3]: "Market Not Open"}</p>
-      </div>
-      <div id="containerIntro">
-        <h1>Bid Price: </h1>
-        <p>{summaryData[4] !== 0 ? summaryData[4]: "Market Not Open"}</p>
-      </div>
-      <div id="containerIntro">
-        <h1>Bid Size: </h1>
-        <p>{summaryData[5] !== 0 ? summaryData[5]: "Market Not Open"}</p>
-      </div>
-      <div id="containerIntro">
-        <h1>Open: </h1>
-        <p>{summaryData[7]}</p>
-      </div>
-      <div id="containerIntro">
-        <h1>Close: </h1>
-        <p>{summaryData[6]}</p>
-      </div>
-      <div id="containerIntro">
-        <h1>Volume: </h1>
-        <p>{summaryData[8]}</p>
-      </div>
-      <div id="containerIntro">
-        <h1>Market Cap: </h1>
-        <p>{summaryData[9]}</p>
-      </div>
-      <div id="containerIntro">
-        <h1>PE Ratio: </h1>
-        <p>{summaryData[10]}</p>
-      </div>
-      <div id="containerIntro">
-        <h1>52 Week High: </h1>
-        <p>{summaryData[14]}</p>
-      </div>
-      <div id="containerIntro">
-        <h1>52 Week Low: </h1>
-        <p>{summaryData[15]}</p>
-      </div>
+          <div id="containerIntro">
+            <h1>Ask Price: </h1>
+            <p>
+              {summaryData[2] !== (0 || null)
+                ? summaryData[2]
+                : "Market Not Open"}
+            </p>
+          </div>
+          <div id="containerIntro">
+            <h1>Ask Size: </h1>
+            <p>
+              {summaryData[3] !== (0 || null)
+                ? summaryData[3]
+                : "Market Not Open"}
+            </p>
+          </div>
+          <div id="containerIntro">
+            <h1>Bid Price: </h1>
+            <p>
+              {summaryData[4] !== (0 || null)
+                ? summaryData[4]
+                : "Market Not Open"}
+            </p>
+          </div>
+          <div id="containerIntro">
+            <h1>Bid Size: </h1>
+            <p>
+              {summaryData[5] !== (0 || null)
+                ? summaryData[5]
+                : "Market Not Open"}
+            </p>
+          </div>
+          <div id="containerIntro">
+            <h1>Open: </h1>
+            <p>{summaryData[7]}</p>
+          </div>
+          <div id="containerIntro">
+            <h1>Close: </h1>
+            <p>{summaryData[6]}</p>
+          </div>
+          <div id="containerIntro">
+            <h1>Volume: </h1>
+            <p>{summaryData[8]}</p>
+          </div>
+          <div id="containerIntro">
+            <h1>Market Cap: </h1>
+            <p>{summaryData[9]}</p>
+          </div>
+          <div id="containerIntro">
+            <h1>PE Ratio: </h1>
+            <p>{summaryData[10]}</p>
+          </div>
+          <div id="containerIntro">
+            <h1>52 Week High: </h1>
+            <p>{summaryData[14]}</p>
+          </div>
+          <div id="containerIntro">
+            <h1>52 Week Low: </h1>
+            <p>{summaryData[15]}</p>
+          </div>
         </Item>
       </Grid>
 
       <Grid item xs={12}>
-        <Item>Buy Sell</Item>
+        <Item>
+          <form id="buysellform" onSubmit={handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={4}>
+                <Box //BUYSELL Toggle
+                  component="form"
+                  sx={{
+                    "& .MuiTextField-root": { m: 1, width: "25ch" },
+                  }}
+                  noValidate
+                  autoComplete="off"
+                >
+                  <TextField
+                    id="outlined-select-action"
+                    select
+                    label="Select"
+                    value={buysellaction}
+                    onChange={(e) => setBuySell(e.target.value)}
+                    helperText="Please select action to take"
+                  >
+                    {action.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  onChange={(e) => setStock(e.target.value)}
+                  type="text"
+                  placeholder="Choose Stock"
+                ></TextField>
+              </Grid>
+              <Grid item xs={4}>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="Select Date"
+                    value={date}
+                    onChange={(newDate) => {
+                      setDate(newDate);
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  type="number"
+                  placeholder="Enter Quantity"
+                  onChange={(e) => setQuantity(e.target.value)}
+                ></TextField>
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  onChange={(e) => setPrice(e.target.value)}
+                  type="number"
+                  placeholder="Enter Price"
+                ></TextField>
+              </Grid>
+              <Grid item xs={4}>
+                <Button
+                  type="submit"
+                  form="buysellform"
+                  variant="contained"
+                  size="large"
+                >
+                  Submit
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
+        </Item>
       </Grid>
     </Grid>
   );
