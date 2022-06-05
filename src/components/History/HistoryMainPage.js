@@ -21,6 +21,8 @@ import Chart from '../Dashboard/Chart';
 import Deposits from '../Dashboard/Deposits';
 import Orders from '../Dashboard/Orders';
 import { UserAuth } from '../../context/AuthContext'
+import { getDatabase, ref, set, onValue } from "firebase/database";
+import { Table } from 'react-bootstrap';
 
 
 const drawerWidth = 240;
@@ -78,7 +80,21 @@ const mdTheme = createTheme({
   },
 });
 
+function getRealtimeHistory(userId) { // how to get userId
+  const db = getDatabase();
+  const dbRef = ref(db, `users/${userId}/history`);
 
+  var records = [];
+
+  onValue(dbRef, (snapshot) => {
+    snapshot.forEach(childSnapshot => {
+      let keyName = childSnapshot.key;
+      let data = childSnapshot.val();
+      records = [data.date, data.type, data.ticker, data.quantity, data.price];
+    });
+  })
+  return records;
+}
 
 function DashboardContent() { //MAIN CODE HERE
   const [open, setOpen] = React.useState(true);
@@ -87,11 +103,20 @@ function DashboardContent() { //MAIN CODE HERE
   };
   const { user, logout } = UserAuth();
 
+  const user_email = String(user.email);
+  const slicedUser = (user_email.split("@")[0] + user_email.split("@")[1]).split(".")[0];
+  const records = getRealtimeHistory(slicedUser);
+  const type = records[1];
+  const date = records[0];
+  const ticker = records[2];
+  const qty = records[3];
+  const price = records[4];
+
   return (
     <ThemeProvider theme={mdTheme}>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <AppBar position="absolute" open={open} style={{background: '#000'}}>
+        <AppBar position="absolute" open={open} style={{ background: '#000' }}>
           <Toolbar
             sx={{
               pr: '24px', // keep right padding when drawer closed
@@ -154,36 +179,29 @@ function DashboardContent() { //MAIN CODE HERE
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Chart />
-                </Paper>
-              </Grid>
-              {/* Recent Deposits */}
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Deposits />
-                </Paper>
-              </Grid>
               {/* Recent Orders */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Orders />
+                  <Table>
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Ticker</th>
+                        <th>Quantity</th>
+                        <th>Price ($)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <td>{type}</td>
+                          <td>{date}</td>
+                          <td>{ticker}</td>
+                          <td>{qty}</td>
+                          <td>{price}</td>
+                        </tr>
+                    </tbody>
+                  </Table>
                 </Paper>
               </Grid>
             </Grid>

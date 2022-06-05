@@ -1,6 +1,18 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from '../context/AuthContext'
+import { getDatabase, ref, set } from "firebase/database";
+
+function writeUserData(userId, email) {
+  const db = getDatabase();
+
+  // handling userId to get unique Id
+  const slicedUser = (userId.split("@")[0] + userId.split("@")[1]).split(".")[0]; 
+  set(ref(db, 'users/' + slicedUser), {
+    userId: slicedUser,
+    email: email
+  });
+}
 
 const Signup = () => {
     const [email, setEmail] = useState('')
@@ -15,6 +27,7 @@ const Signup = () => {
         setError('')
         try {
             await createUser(email, password);
+            writeUserData(email, email); // handled above for userId
             navigate('/Dashboard')
         } catch (e) {
             setError(e.message);
