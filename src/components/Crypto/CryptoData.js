@@ -22,7 +22,14 @@ import Deposits from "../Dashboard/Deposits";
 import Orders from "../Dashboard/Orders";
 import axios from "axios";
 import Plot from "react-plotly.js";
-import '../Stocks/StockData.css';
+import "../Stocks/StockData.css";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import Button from "@mui/material/Button";
+import { UserAuth } from '../../context/AuthContext'
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -31,6 +38,17 @@ const Item = styled(Paper)(({ theme }) => ({
   textAlign: "center",
   color: theme.palette.text.secondary,
 }));
+
+const action = [
+  {
+    value: "buy",
+    label: "BUY",
+  },
+  {
+    value: "sell",
+    label: "SELL",
+  },
+];
 
 function getRelevantData(data) {
   const wantedInfo = [
@@ -120,15 +138,35 @@ function CryptoData() {
       });
   }
 
-  //   return (
-  //   <div>
-  //     <label>Enter ticker symbol:</label>
-  //     <input type="text" onChange={(e) => updateTextFunc(e.target.value)}></input>
-  //     <button onClick={(event) => searchForStock(event)}>Submit</button>
+  //BuySellToggle
+  const [buysellaction, setBuySell] = React.useState("");
+  //Date Toggle
+  const [date, setDate] = React.useState(null);
+  //Select Stock
+  const [crypto, setCrypto] = React.useState("");
+  //Select Quantity
+  const [quantity, setQuantity] = React.useState("");
+  //Select Price
+  const [price, setPrice] = React.useState("");
+  const { user, logout } = UserAuth();
 
-  //     {JSON.stringify(StockInfo) != "{}" ? <p>We have data</p> : <p>No data</p>}
-  //   </div>;
-  //   );
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    try {
+      console.log(buysellaction); //These are the variables to parse into backend function as inputs
+      console.log(date);
+      console.log(crypto);
+      console.log(quantity);
+      console.log(price);
+      console.log(user.email);
+      //PSEUDOCODE
+      //IF buysellaction == "buy" => execute buyCrypto(user.email, date, stock, quantity, price)
+      //IF buysellaction == "sell" => execute sellCrypto(user.email, date, stock, quantity, price)
+    } catch (error) {
+      console.log("pop up to be made still work in progress");
+    }
+  };
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={8}>
@@ -137,9 +175,12 @@ function CryptoData() {
             <label>Enter ticker symbol:</label>
             <input
               type="text"
+              class="txtbox"
               onChange={(e) => updateTextFunc(e.target.value)}
             ></input>
-            <button onClick={(event) => searchForCrypto(event)}>Submit</button>
+            <button class="button" onClick={(event) => searchForCrypto(event)}>
+              Submit
+            </button>
 
             {JSON.stringify(CryptoInfo) !== "{}" ? (
               <p>Now Displaying: {tickerSymbol}</p>
@@ -213,7 +254,80 @@ function CryptoData() {
       </Grid>
 
       <Grid item xs={12}>
-        <Item>Buy Sell</Item>
+        <Item>
+          <form id="buysellform" onSubmit={handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={4}>
+                <Box //BUYSELL Toggle
+                  component="form"
+                  sx={{
+                    "& .MuiTextField-root": { m: 1, width: "25ch" },
+                  }}
+                  noValidate
+                  autoComplete="off"
+                >
+                  <TextField
+                    id="outlined-select-action"
+                    select
+                    label="Select"
+                    value={buysellaction}
+                    onChange={(e) => setBuySell(e.target.value)}
+                    helperText="Please select action to take"
+                  >
+                    {action.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Box>
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  onChange={(e) => setCrypto(e.target.value)}
+                  type="text"
+                  placeholder="Choose Crypto"
+                ></TextField>
+              </Grid>
+              <Grid item xs={4}>
+                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                  <DatePicker
+                    label="Select Date"
+                    value={date}
+                    onChange={(newDate) => {
+                      setDate(newDate);
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  type="number"
+                  placeholder="Enter Quantity"
+                  onChange={(e) => setQuantity(e.target.value)}
+                ></TextField>
+              </Grid>
+              <Grid item xs={4}>
+                <TextField
+                  onChange={(e) => setPrice(e.target.value)}
+                  type="number"
+                  placeholder="Enter Price"
+                ></TextField>
+              </Grid>
+              <Grid item xs={4}>
+                <Button
+                  type="submit"
+                  form="buysellform"
+                  variant="contained"
+                  size="large"
+                >
+                  Submit
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
+        </Item>
       </Grid>
     </Grid>
   );
