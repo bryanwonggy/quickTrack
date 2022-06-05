@@ -30,6 +30,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Button from "@mui/material/Button";
 import { UserAuth } from '../../context/AuthContext'
+import { getDatabase, ref, set, child, get, push, update, remove, onValue } from "firebase/database";
+
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -49,6 +51,83 @@ const action = [
     label: "SELL",
   },
 ];
+
+function addToHistory(userId, type, date, ticker, qty, price) {
+  const db = getDatabase();
+  const historyListRef = ref(db, `users/${userId}/history`);
+  const newTxnRef = push(historyListRef);
+  set(newTxnRef, {
+      type: type,
+      date: date,
+      ticker: ticker,
+      quantity: qty,
+      price: price
+  });
+}
+
+function buyCrypto(userId, date, ticker, qty, price) {
+  const db = getDatabase();
+  const cryptoListRef = ref(db, 'users/' + userId + '/crypto/' + ticker)
+  const dbRef = ref(getDatabase());
+  get(child(dbRef, `users/${userId}/crypto/${ticker}`)).then((snapshot) => {
+    // if the crypto already in your portfolio 
+    if (snapshot.exists()) {
+      const old_qty = Number(snapshot.val().qty);
+      const old_average_cost = Number(snapshot.val().average_cost);
+      const old_total_cost = Number(snapshot.val().total_cost);
+      update(cryptoListRef, {
+        qty: old_qty + Number(qty),
+        total_cost: old_total_cost + Number(qty * price),
+        average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
+      })
+      addToHistory(userId, 'BUY', date, ticker, qty, price);
+    } else {
+      // if the stock not in the portfolio
+      set(cryptoListRef, { 
+        qty: qty,
+        total_cost: qty * price,
+        average_cost: price
+      })
+      addToHistory(userId, 'BUY', date, ticker, qty, price);
+    }
+  }).catch((error) => {
+    console.error(error);
+  });
+}
+
+function sellCrypto(userId, date, ticker, qty, price) {
+  const db = getDatabase();
+  const cryptoListRef = ref(db, 'users/' + userId + '/crypto/' + ticker)
+  const dbRef = ref(getDatabase());
+  get(child(dbRef, `users/${userId}/crypto/${ticker}`)).then((snapshot) => {
+    // if the stock already in your portfolio 
+    if (snapshot.exists()) {
+      const old_qty = Number(snapshot.val().qty);
+      const old_average_cost = Number(snapshot.val().average_cost);
+      const old_total_cost = Number(snapshot.val().total_cost);
+      if (old_qty > qty) {
+        update(cryptoListRef, {
+          qty: old_qty - Number(qty),
+          total_cost: old_total_cost - Number(old_average_cost * qty),
+          average_cost: (old_total_cost - Number(old_average_cost * qty)) / (old_qty - Number(qty))
+        })
+        addToHistory(userId, 'SELL', date, ticker, qty, price);
+      } else if (old_qty == qty) {
+        remove(cryptoListRef);
+        addToHistory(userId, 'SELL', date, ticker, qty, price);
+      } else {
+        // insufficient qty to sell 
+        console.log("Insufficient crypto to sell");
+      }
+
+    } else {
+      // if the stock not in the portfolio
+      console.log("No such crypto available");
+    }
+  }).catch((error) => {
+    console.error(error);
+  });
+}
 
 function getRelevantData(data) {
   const wantedInfo = [
@@ -149,6 +228,7 @@ function CryptoData() {
   //Select Price
   const [price, setPrice] = React.useState("");
   const { user, logout } = UserAuth();
+  const userId = (user.email.split("@")[0] + user.email.split("@")[1]).split(".")[0];
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -159,9 +239,13 @@ function CryptoData() {
       console.log(quantity);
       console.log(price);
       console.log(user.email);
-      //PSEUDOCODE
-      //IF buysellaction == "buy" => execute buyCrypto(user.email, date, stock, quantity, price)
-      //IF buysellaction == "sell" => execute sellCrypto(user.email, date, stock, quantity, price)
+      // executing of the functions into the database when submit
+      if (buysellaction == "buy") {
+        buyCrypto(userId, String(date), crypto, quantity, price);
+      } 
+      if (buysellaction == "sell") {
+        sellCrypto(userId, String(date), crypto, quantity, price);
+      }
     } catch (error) {
       console.log("pop up to be made still work in progress");
     }

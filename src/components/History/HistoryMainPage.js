@@ -90,7 +90,7 @@ function getRealtimeHistory(userId) { // how to get userId
     snapshot.forEach(childSnapshot => {
       let keyName = childSnapshot.key;
       let data = childSnapshot.val();
-      records = [data.date, data.type, data.ticker, data.quantity, data.price];
+      records.push([data.date, data.type, data.ticker, data.quantity, data.price]);
     });
   })
   return records;
@@ -105,7 +105,7 @@ function DashboardContent() { //MAIN CODE HERE
 
   const user_email = String(user.email);
   const slicedUser = (user_email.split("@")[0] + user_email.split("@")[1]).split(".")[0];
-  const records = getRealtimeHistory(slicedUser);
+  const records = getRealtimeHistory(slicedUser); // need to fix this history portion to show all the records
   const type = records[1];
   const date = records[0];
   const ticker = records[2];
