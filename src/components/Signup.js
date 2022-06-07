@@ -1,7 +1,21 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserAuth } from '../context/AuthContext'
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, ref, set, child, get, push, update, remove, onValue } from "firebase/database";
+
+
+function addToHistory(userId, type, date, ticker, qty, price) {
+  const db = getDatabase();
+  const historyListRef = ref(db, `users/${userId}/history`);
+  const newTxnRef = push(historyListRef);
+  set(newTxnRef, {
+    type: type,
+    date: date,
+    ticker: ticker,
+    quantity: qty,
+    price: price
+  });
+}
 
 function writeUserData(userId, email) {
   const db = getDatabase();
@@ -10,7 +24,9 @@ function writeUserData(userId, email) {
   const slicedUser = (userId.split("@")[0] + userId.split("@")[1]).split(".")[0]; 
   set(ref(db, 'users/' + slicedUser), {
     userId: slicedUser,
-    email: email
+    email: email,
+    cash: 0,
+    history: 'CREATED'
   });
 }
 

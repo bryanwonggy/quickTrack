@@ -13,7 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { data } from "autoprefixer";
 import { QuizTwoTone } from "@mui/icons-material";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { UserAuth } from './context/AuthContext'
+
 
 function App() {
   return (
