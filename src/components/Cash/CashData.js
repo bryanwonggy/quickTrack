@@ -81,7 +81,7 @@ function depositCash(userId, date, amount) {
     .then((snapshot) => {
       const old_cash = Number(snapshot.val().cash);
       update(ref(db, `users/${userId}`), {
-        cash: old_cash + amount,
+        cash: old_cash + Number(amount),
       });
       addToHistory(userId, "DEPOSIT", date, "-", "-", amount);
     })
@@ -105,7 +105,7 @@ function withdrawCash(userId, date, amount) {
         addToHistory(userId, "WITHDRAW", date, "-", "-", amount);
       } else {
         update(ref(db, `users/${userId}`), {
-          cash: old_cash - amount,
+          cash: old_cash - Number(amount),
         });
         addToHistory(userId, "WITHDRAW", date, "-", "-", amount);
       }
@@ -114,6 +114,20 @@ function withdrawCash(userId, date, amount) {
       console.error(error);
     });
 }
+
+function getCash(userId) {
+  const db = getDatabase();
+  const dbRef = ref(db, `users/${userId}`);
+
+  var records = [];
+
+  onValue(dbRef, (snapshot) => {
+    const old_cash = snapshot.val().cash;
+    records.push(old_cash);
+  });
+  return records[0];
+}
+
 
 function CashData() {
   //BuySellToggle
@@ -128,6 +142,8 @@ function CashData() {
   const userId = (user.email.split("@")[0] + user.email.split("@")[1]).split(
     "."
   )[0];
+
+  const current_cash = getCash(userId);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -154,7 +170,7 @@ function CashData() {
       <Grid item xs={12}>
         <Item>
           <div>
-            <h1>Current Cash: (add dynamic data frm backend here)</h1>
+            <h1>Current Cash: ${current_cash}</h1>
           </div>
         </Item>
       </Grid>

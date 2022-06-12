@@ -81,7 +81,6 @@ const mdTheme = createTheme({
 });
 
 function getRealtimeHistory(userId) {
-  // how to get userId
   const db = getDatabase();
   const dbRef = ref(db, `users/${userId}/history`);
 

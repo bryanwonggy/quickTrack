@@ -13,6 +13,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { data } from "autoprefixer";
 import { QuizTwoTone } from "@mui/icons-material";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { getDatabase, ref, set, child, get, push, update, remove, onValue } from "firebase/database";
 
 
 function App() {

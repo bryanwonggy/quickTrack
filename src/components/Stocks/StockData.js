@@ -89,49 +89,84 @@ function StockData() {
     stockChartYValues: [],
   }); //toPlotChart
 
+  // to add to history page
   function addToHistory(userId, type, date, ticker, qty, price) {
     const db = getDatabase();
     const historyListRef = ref(db, `users/${userId}/history`);
     const newTxnRef = push(historyListRef);
     set(newTxnRef, {
-        type: type,
-        date: date,
-        ticker: ticker,
-        quantity: qty,
-        price: price
+      type: type,
+      date: date,
+      ticker: ticker,
+      quantity: qty,
+      price: price
     });
   }
-  
+
+  // to get current cash in account
+  function getCash(userId) {
+    const db = getDatabase();
+    const dbRef = ref(db, `users/${userId}`);
+
+    var records = [];
+
+    onValue(dbRef, (snapshot) => {
+      const old_cash = snapshot.val().cash;
+      records.push(old_cash);
+    });
+    return records[0];
+  }
+
+
+  function updateCash(userId, amount) {
+    const db = getDatabase();
+    const dbRef = ref(getDatabase());
+    const userRef = ref(db, `users/${userId}`)
+    get(child(dbRef, `users/${userId}`)).then((snapshot) => {
+      if (snapshot.exists()) {
+        const old_cash = Number(snapshot.val().cash);
+        update(userRef, {
+          cash: old_cash + amount
+        })
+      }
+    })
+  }
+
   function buyStock(userId, date, ticker, qty, price) {
     const db = getDatabase();
     const stocksListRef = ref(db, 'users/' + userId + '/stocks/' + ticker)
     const dbRef = ref(getDatabase());
-    get(child(dbRef, `users/${userId}/stocks/${ticker}`)).then((snapshot) => {
-      // if the stock already in your portfolio 
-      if (snapshot.exists()) {
-        const old_qty = Number(snapshot.val().qty);
-        const old_average_cost = Number(snapshot.val().average_cost);
-        const old_total_cost = Number(snapshot.val().total_cost);
-        update(stocksListRef, {
-          qty: old_qty + Number(qty),
-          total_cost: old_total_cost + Number(qty * price),
-          average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
-        })
-        addToHistory(userId, 'BUY', date, ticker, qty, price);
+    onValue(stocksListRef, (snapshot) => {
+      // check whether sufficient cash
+      const old_cash = getCash(userId);
+      if (old_cash >= qty * price) {
+        if (snapshot.exists()) {
+          const old_qty = Number(snapshot.val().qty);
+          const old_average_cost = Number(snapshot.val().average_cost);
+          const old_total_cost = Number(snapshot.val().total_cost);
+          update(stocksListRef, {
+            qty: old_qty + Number(qty),
+            total_cost: old_total_cost + Number(qty * price),
+            average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
+          })
+          addToHistory(userId, 'BUY', date, ticker, qty, price);
+          updateCash(userId, (qty * price * -1)); // negative because buy
+        } else {
+          // if the stock not in the portfolio
+          set(stocksListRef, {
+            qty: qty,
+            total_cost: qty * price,
+            average_cost: price
+          })
+          addToHistory(userId, 'BUY', date, ticker, qty, price);
+          updateCash(userId, (qty * price * -1)); // negative because buy
+        }
       } else {
-        // if the stock not in the portfolio
-        set(stocksListRef, { 
-          qty: qty,
-          total_cost: qty * price,
-          average_cost: price
-        })
-        addToHistory(userId, 'BUY', date, ticker, qty, price);
+        setErrorMessage("Insufficient Funds, Please Top Up!");
       }
-    }).catch((error) => {
-      console.error(error);
-    });
+    })
   }
-  
+
   function sellStock(userId, date, ticker, qty, price) {
     const db = getDatabase();
     const stocksListRef = ref(db, 'users/' + userId + '/stocks/' + ticker)
@@ -149,15 +184,17 @@ function StockData() {
             average_cost: (old_total_cost - Number(old_average_cost * qty)) / (old_qty - Number(qty))
           })
           addToHistory(userId, 'SELL', date, ticker, qty, price);
-        } else if (old_qty == qty) {
+          // update the cash balance
+          updateCash(userId, qty * price);
+        } else if (old_qty === qty) {
           remove(stocksListRef);
           addToHistory(userId, 'SELL', date, ticker, qty, price);
+          updateCash(userId, qty * price);
         } else {
           // insufficient qty to sell 
           console.log("Insufficient stock to sell");
           setErrorMessage("Insufficient stock to sell");
         }
-  
       } else {
         // if the stock not in the portfolio
         console.log("You do not own this stock!");
@@ -234,18 +271,18 @@ function StockData() {
       console.log(quantity);
       console.log(price);
       console.log(userId)
-      
+
       // executing of the functions into the database when submit
-      if (buysellaction == "buy") {
-        buyStock(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), stock, quantity, price);
-      } 
-      if (buysellaction == "sell") {
-        sellStock(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), stock, quantity, price);
+      if (buysellaction === "buy") {
+        buyStock(userId, Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date), stock, quantity, price);
+      }
+      if (buysellaction === "sell") {
+        sellStock(userId, Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date), stock, quantity, price);
       }
     } catch (error) {
       console.log(error);
     }
-  
+
   };
 
   return (
