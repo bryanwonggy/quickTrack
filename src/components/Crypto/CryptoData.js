@@ -264,10 +264,10 @@ function CryptoData() {
             <label>Enter ticker symbol:</label>
             <input
               type="text"
-              class="txtbox"
+              className="txtbox"
               onChange={(e) => updateTextFunc(e.target.value)}
             ></input>
-            <button class="button" onClick={(event) => searchForCrypto(event)}>
+            <button className="button" onClick={(event) => searchForCrypto(event)}>
               Submit
             </button>
 
@@ -421,7 +421,7 @@ function CryptoData() {
       <Grid item xs={12}>
         <Item>
           <div>
-            {ErrorMessage ? <label class="danger">{ErrorMessage}</label> : null}
+            {ErrorMessage ? <label className="danger">{ErrorMessage}</label> : null}
           </div>
         </Item>
       </Grid>
