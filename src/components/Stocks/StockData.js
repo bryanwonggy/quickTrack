@@ -52,83 +52,6 @@ const action = [
   },
 ];
 
-function addToHistory(userId, type, date, ticker, qty, price) {
-  const db = getDatabase();
-  const historyListRef = ref(db, `users/${userId}/history`);
-  const newTxnRef = push(historyListRef);
-  set(newTxnRef, {
-      type: type,
-      date: date,
-      ticker: ticker,
-      quantity: qty,
-      price: price
-  });
-}
-
-function buyStock(userId, date, ticker, qty, price) {
-  const db = getDatabase();
-  const stocksListRef = ref(db, 'users/' + userId + '/stocks/' + ticker)
-  const dbRef = ref(getDatabase());
-  get(child(dbRef, `users/${userId}/stocks/${ticker}`)).then((snapshot) => {
-    // if the stock already in your portfolio 
-    if (snapshot.exists()) {
-      const old_qty = Number(snapshot.val().qty);
-      const old_average_cost = Number(snapshot.val().average_cost);
-      const old_total_cost = Number(snapshot.val().total_cost);
-      update(stocksListRef, {
-        qty: old_qty + Number(qty),
-        total_cost: old_total_cost + Number(qty * price),
-        average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
-      })
-      addToHistory(userId, 'BUY', date, ticker, qty, price);
-    } else {
-      // if the stock not in the portfolio
-      set(stocksListRef, { 
-        qty: qty,
-        total_cost: qty * price,
-        average_cost: price
-      })
-      addToHistory(userId, 'BUY', date, ticker, qty, price);
-    }
-  }).catch((error) => {
-    console.error(error);
-  });
-}
-
-function sellStock(userId, date, ticker, qty, price) {
-  const db = getDatabase();
-  const stocksListRef = ref(db, 'users/' + userId + '/stocks/' + ticker)
-  const dbRef = ref(getDatabase());
-  get(child(dbRef, `users/${userId}/stocks/${ticker}`)).then((snapshot) => {
-    // if the stock already in your portfolio 
-    if (snapshot.exists()) {
-      const old_qty = Number(snapshot.val().qty);
-      const old_average_cost = Number(snapshot.val().average_cost);
-      const old_total_cost = Number(snapshot.val().total_cost);
-      if (old_qty > qty) {
-        update(stocksListRef, {
-          qty: old_qty - Number(qty),
-          total_cost: old_total_cost - Number(old_average_cost * qty),
-          average_cost: (old_total_cost - Number(old_average_cost * qty)) / (old_qty - Number(qty))
-        })
-        addToHistory(userId, 'SELL', date, ticker, qty, price);
-      } else if (old_qty == qty) {
-        remove(stocksListRef);
-        addToHistory(userId, 'SELL', date, ticker, qty, price);
-      } else {
-        // insufficient qty to sell 
-        console.log("Insufficient crypto to sell");
-      }
-
-    } else {
-      // if the stock not in the portfolio
-      console.log("No such stock available");
-    }
-  }).catch((error) => {
-    console.error(error);
-  });
-}
-
 function getRelevantData(data) {
   const wantedInfo = [
     "companyName",
@@ -159,11 +82,92 @@ function StockData() {
   const IEX_API_Key = "pk_7ae7f450e7bd4274a7e4ded7019573ae"; //for stock summary data such as PE Ratio
   const [summaryData, updateSummaryData] = React.useState({});
   const { user, logout } = UserAuth();
+  const [ErrorMessage, setErrorMessage] = React.useState("");
 
   const [timeSeriesData, updateTimeSeriesData] = React.useState({
     stockChartXValues: [],
     stockChartYValues: [],
   }); //toPlotChart
+
+  function addToHistory(userId, type, date, ticker, qty, price) {
+    const db = getDatabase();
+    const historyListRef = ref(db, `users/${userId}/history`);
+    const newTxnRef = push(historyListRef);
+    set(newTxnRef, {
+        type: type,
+        date: date,
+        ticker: ticker,
+        quantity: qty,
+        price: price
+    });
+  }
+  
+  function buyStock(userId, date, ticker, qty, price) {
+    const db = getDatabase();
+    const stocksListRef = ref(db, 'users/' + userId + '/stocks/' + ticker)
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `users/${userId}/stocks/${ticker}`)).then((snapshot) => {
+      // if the stock already in your portfolio 
+      if (snapshot.exists()) {
+        const old_qty = Number(snapshot.val().qty);
+        const old_average_cost = Number(snapshot.val().average_cost);
+        const old_total_cost = Number(snapshot.val().total_cost);
+        update(stocksListRef, {
+          qty: old_qty + Number(qty),
+          total_cost: old_total_cost + Number(qty * price),
+          average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
+        })
+        addToHistory(userId, 'BUY', date, ticker, qty, price);
+      } else {
+        // if the stock not in the portfolio
+        set(stocksListRef, { 
+          qty: qty,
+          total_cost: qty * price,
+          average_cost: price
+        })
+        addToHistory(userId, 'BUY', date, ticker, qty, price);
+      }
+    }).catch((error) => {
+      console.error(error);
+    });
+  }
+  
+  function sellStock(userId, date, ticker, qty, price) {
+    const db = getDatabase();
+    const stocksListRef = ref(db, 'users/' + userId + '/stocks/' + ticker)
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `users/${userId}/stocks/${ticker}`)).then((snapshot) => {
+      // if the stock already in your portfolio 
+      if (snapshot.exists()) {
+        const old_qty = Number(snapshot.val().qty);
+        const old_average_cost = Number(snapshot.val().average_cost);
+        const old_total_cost = Number(snapshot.val().total_cost);
+        if (old_qty > qty) {
+          update(stocksListRef, {
+            qty: old_qty - Number(qty),
+            total_cost: old_total_cost - Number(old_average_cost * qty),
+            average_cost: (old_total_cost - Number(old_average_cost * qty)) / (old_qty - Number(qty))
+          })
+          addToHistory(userId, 'SELL', date, ticker, qty, price);
+        } else if (old_qty == qty) {
+          remove(stocksListRef);
+          addToHistory(userId, 'SELL', date, ticker, qty, price);
+        } else {
+          // insufficient qty to sell 
+          console.log("Insufficient stock to sell");
+          setErrorMessage("Insufficient stock to sell");
+        }
+  
+      } else {
+        // if the stock not in the portfolio
+        console.log("You do not own this stock!");
+        setErrorMessage("You do not own this stock!");
+      }
+    }).catch((error) => {
+      console.error(error);
+    });
+  }
+
 
   function searchForStock(event) {
     var APICallString = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${searchText}&apikey=${API_KEY}`; //check AlphaVantage API (outputsize=full for full 20years data)
@@ -196,16 +200,6 @@ function StockData() {
     axios //NEW FOR STOCK INFO
       .get(IEX_APICallString)
       .then(function (response) {
-        console.log("HERE");
-        console.log(response);
-        // for (let key in response) {
-        //   if (getRelevantData(key)) {
-        //     let str = JSON.stringify(response[key]);
-        //     tempSummaryInfo.push(str);
-        //   }
-        //   //   let str = JSON.stringify(key) + " : " + JSON.stringify(response.data[key]);
-        //   //   tempSummaryInfo.push(str);
-        // }
         for (let key in response.data) {
           if (getRelevantData(key)) {
             let obj = response.data[key];
@@ -221,15 +215,13 @@ function StockData() {
       });
   }
 
-  //BuySellToggle
+
+
+
   const [buysellaction, setBuySell] = React.useState("");
-  //Date Toggle
   const [date, setDate] = React.useState(null);
-  //Select Stock
   const [stock, setStock] = React.useState("");
-  //Select Quantity
   const [quantity, setQuantity] = React.useState("");
-  //Select Price
   const [price, setPrice] = React.useState("");
   const userId = (user.email.split("@")[0] + user.email.split("@")[1]).split(".")[0];
 
@@ -245,14 +237,15 @@ function StockData() {
       
       // executing of the functions into the database when submit
       if (buysellaction == "buy") {
-        buyStock(userId, String(date), stock, quantity, price);
+        buyStock(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), stock, quantity, price);
       } 
       if (buysellaction == "sell") {
-        sellStock(userId, date, stock, quantity, price);
+        sellStock(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), stock, quantity, price);
       }
     } catch (error) {
-      console.log("pop up to be made still work in progress");
+      console.log(error);
     }
+  
   };
 
   return (
@@ -430,6 +423,13 @@ function StockData() {
               </Grid>
             </Grid>
           </form>
+        </Item>
+      </Grid>
+      <Grid item xs={12}>
+        <Item>
+          <div>
+            {ErrorMessage ? <label class="danger">{ErrorMessage}</label> : null}
+          </div>
         </Item>
       </Grid>
     </Grid>
