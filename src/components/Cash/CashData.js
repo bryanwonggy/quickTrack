@@ -22,16 +22,25 @@ import Deposits from "../Dashboard/Deposits";
 import Orders from "../Dashboard/Orders";
 import axios from "axios";
 import Plot from "react-plotly.js";
-import "./StockData.css";
+import "../Stocks/StockData.css";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Button from "@mui/material/Button";
-import { UserAuth } from '../../context/AuthContext'
-import { getDatabase, ref, set, child, get, push, update, remove, onValue } from "firebase/database";
-
+import { UserAuth } from "../../context/AuthContext";
+import {
+  getDatabase,
+  ref,
+  set,
+  child,
+  get,
+  push,
+  update,
+  remove,
+  onValue,
+} from "firebase/database";
 
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
@@ -43,12 +52,12 @@ const Item = styled(Paper)(({ theme }) => ({
 
 const action = [
   {
-    value: "buy",
-    label: "BUY",
+    value: "deposit",
+    label: "DEPOSIT",
   },
   {
-    value: "sell",
-    label: "SELL",
+    value: "withdraw",
+    label: "WITHDRAW",
   },
 ];
 
@@ -61,75 +70,79 @@ function addToHistory(userId, type, date, ticker, qty, price) {
     date: date,
     ticker: ticker,
     quantity: qty,
-    price: price
+    price: price,
   });
 }
 
 function depositCash(userId, date, amount) {
   const db = getDatabase();
   const dbRef = ref(getDatabase());
-  get(child(dbRef, `users/${userId}`)).then((snapshot) => {
-    const old_cash = Number(snapshot.val().cash);
-    update(ref(db, `users/${userId}`), {
-      cash: old_cash + amount
+  get(child(dbRef, `users/${userId}`))
+    .then((snapshot) => {
+      const old_cash = Number(snapshot.val().cash);
+      update(ref(db, `users/${userId}`), {
+        cash: old_cash + amount,
+      });
+      addToHistory(userId, "DEPOSIT", date, "-", "-", amount);
+    })
+    .catch((error) => {
+      console.error(error);
     });
-    addToHistory(userId, 'DEPOSIT', date, '-', '-', amount);
-  }).catch((error) => {
-    console.error(error);
-  });
 }
 
 function withdrawCash(userId, date, amount) {
   const db = getDatabase();
   const dbRef = ref(getDatabase());
-  get(child(dbRef, `users/${userId}`)).then((snapshot) => {
-    const old_cash = Number(snapshot.val().cash);
-    if (amount > old_cash) {
-      console.log("Insufficient Funds.");
-    } else if (amount == old_cash) {
-      update(ref(db, `users/${userId}`), {
-        cash: 0
-      });
-      addToHistory(userId, 'WITHDRAW', date, '-', '-', amount);
-    } else {
-      update(ref(db, `users/${userId}`), {
-        cash: old_cash - amount
-      });
-      addToHistory(userId, 'WITHDRAW', date, '-', '-', amount);
-    }
-  }).catch((error) => {
-    console.error(error);
-  });
+  get(child(dbRef, `users/${userId}`))
+    .then((snapshot) => {
+      const old_cash = Number(snapshot.val().cash);
+      if (amount > old_cash) {
+        console.log("Insufficient Funds.");
+      } else if (amount == old_cash) {
+        update(ref(db, `users/${userId}`), {
+          cash: 0,
+        });
+        addToHistory(userId, "WITHDRAW", date, "-", "-", amount);
+      } else {
+        update(ref(db, `users/${userId}`), {
+          cash: old_cash - amount,
+        });
+        addToHistory(userId, "WITHDRAW", date, "-", "-", amount);
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 }
 
+function CashData() {
   //BuySellToggle
-  const [buysellaction, setBuySell] = React.useState("");
+  const [depositWithdrawAction, setDepositWithdraw] = React.useState("");
   //Date Toggle
   const [date, setDate] = React.useState(null);
-  //Select Stock
-  const [stock, setStock] = React.useState("");
-  //Select Quantity
-  const [quantity, setQuantity] = React.useState("");
   //Select Price
   const [price, setPrice] = React.useState("");
-  const userId = (user.email.split("@")[0] + user.email.split("@")[1]).split(".")[0];
+
+  const { user, logout } = UserAuth();
+
+  const userId = (user.email.split("@")[0] + user.email.split("@")[1]).split(
+    "."
+  )[0];
 
   const handleSubmit = (event) => {
     event.preventDefault();
     try {
-      console.log(buysellaction); //These are the variables to parse into backend function as inputs
+      console.log(depositWithdrawAction); //These are the variables to parse into backend function as inputs
       console.log(date);
-      console.log(stock);
-      console.log(quantity);
       console.log(price);
-      console.log(userId)
+      console.log(userId);
 
       // executing of the functions into the database when submit
-      if (buysellaction == "buy") {
-        buyStock(userId, String(date), stock, quantity, price);
+      if (depositWithdrawAction == "deposit") {
+        depositCash(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), price);
       }
-      if (buysellaction == "sell") {
-        sellStock(userId, date, stock, quantity, price);
+      if (depositWithdrawAction == "withdraw") {
+        withdrawCash(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), price);
       }
     } catch (error) {
       console.log("pop up to be made still work in progress");
@@ -138,110 +151,18 @@ function withdrawCash(userId, date, amount) {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={8}>
+      <Grid item xs={12}>
         <Item>
           <div>
-            <label>Enter ticker symbol:</label>
-            <input
-              type="text"
-              class="txtbox"
-              onChange={(e) => updateTextFunc(e.target.value)}
-            ></input>
-            <button class="button" onClick={(event) => searchForStock(event)}>
-              Submit
-            </button>
-            {JSON.stringify(StockInfo) !== "{}" ? (
-              <p>Now Displaying: {tickerSymbol}</p>
-            ) : (
-              <p>No Search Results</p>
-            )}
-          </div>
-        </Item>
-        <Item>
-          <Plot
-            data={[
-              {
-                x: timeSeriesData.stockChartXValues,
-                y: timeSeriesData.stockChartYValues,
-                type: "scatter",
-                mode: "lines+markers",
-                marker: { color: "red" },
-              },
-            ]}
-            layout={{ title: summaryData[0] }} //KIV Follow size of container dynamic
-          />
-        </Item>
-      </Grid>
-      <Grid item xs={4}>
-        <Item>
-          <div id="containerIntro">
-            <h1>Ask Price: </h1>
-            <p>
-              {summaryData[2] !== (0 || null)
-                ? summaryData[2]
-                : "Market Not Open"}
-            </p>
-          </div>
-          <div id="containerIntro">
-            <h1>Ask Size: </h1>
-            <p>
-              {summaryData[3] !== (0 || null)
-                ? summaryData[3]
-                : "Market Not Open"}
-            </p>
-          </div>
-          <div id="containerIntro">
-            <h1>Bid Price: </h1>
-            <p>
-              {summaryData[4] !== (0 || null)
-                ? summaryData[4]
-                : "Market Not Open"}
-            </p>
-          </div>
-          <div id="containerIntro">
-            <h1>Bid Size: </h1>
-            <p>
-              {summaryData[5] !== (0 || null)
-                ? summaryData[5]
-                : "Market Not Open"}
-            </p>
-          </div>
-          <div id="containerIntro">
-            <h1>Open: </h1>
-            <p>{summaryData[7]}</p>
-          </div>
-          <div id="containerIntro">
-            <h1>Close: </h1>
-            <p>{summaryData[6]}</p>
-          </div>
-          <div id="containerIntro">
-            <h1>Volume: </h1>
-            <p>{summaryData[8]}</p>
-          </div>
-          <div id="containerIntro">
-            <h1>Market Cap: </h1>
-            <p>{summaryData[9]}</p>
-          </div>
-          <div id="containerIntro">
-            <h1>PE Ratio: </h1>
-            <p>{summaryData[10]}</p>
-          </div>
-          <div id="containerIntro">
-            <h1>52 Week High: </h1>
-            <p>{summaryData[14]}</p>
-          </div>
-          <div id="containerIntro">
-            <h1>52 Week Low: </h1>
-            <p>{summaryData[15]}</p>
+            <h1>Current Cash: (add dynamic data frm backend here)</h1>
           </div>
         </Item>
       </Grid>
-
       <Grid item xs={12}>
         <Item>
           <form id="buysellform" onSubmit={handleSubmit}>
             <Grid container spacing={2}>
-              <Grid item xs={4}>
+              <Grid item xs={6}>
                 <Box //BUYSELL Toggle
                   component="form"
                   sx={{
@@ -254,8 +175,8 @@ function withdrawCash(userId, date, amount) {
                     id="outlined-select-action"
                     select
                     label="Select"
-                    value={buysellaction}
-                    onChange={(e) => setBuySell(e.target.value)}
+                    value={depositWithdrawAction}
+                    onChange={(e) => setDepositWithdraw(e.target.value)}
                     helperText="Please select action to take"
                   >
                     {action.map((option) => (
@@ -266,14 +187,7 @@ function withdrawCash(userId, date, amount) {
                   </TextField>
                 </Box>
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  onChange={(e) => setStock(e.target.value)}
-                  type="text"
-                  placeholder="Choose Stock"
-                ></TextField>
-              </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6}>
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                   <DatePicker
                     label="Select Date"
@@ -285,21 +199,14 @@ function withdrawCash(userId, date, amount) {
                   />
                 </LocalizationProvider>
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  type="number"
-                  placeholder="Enter Quantity"
-                  onChange={(e) => setQuantity(e.target.value)}
-                ></TextField>
-              </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6}>
                 <TextField
                   onChange={(e) => setPrice(e.target.value)}
                   type="number"
-                  placeholder="Enter Price"
+                  placeholder="Enter Amount"
                 ></TextField>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6}>
                 <Button
                   type="submit"
                   form="buysellform"
@@ -317,4 +224,4 @@ function withdrawCash(userId, date, amount) {
   );
 }
 
-export default StockData;
+export default CashData;
