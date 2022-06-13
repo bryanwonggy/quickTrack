@@ -137,26 +137,31 @@ function StockData() {
     const dbRef = ref(getDatabase());
     get(child(dbRef, `users/${userId}/stocks/${ticker}`)).then((snapshot) => {
       // if the stock already in your portfolio 
-      if (snapshot.exists()) {
-        const old_qty = Number(snapshot.val().qty);
-        const old_average_cost = Number(snapshot.val().average_cost);
-        const old_total_cost = Number(snapshot.val().total_cost);
-        update(stocksListRef, {
-          qty: old_qty + Number(qty),
-          total_cost: old_total_cost + Number(qty * price),
-          average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
-        })
-        addToHistory(userId, 'BUY', date, ticker, qty, price);
-        updateCash(userId, qty * price * -1);
+      const old_cash = getCash(userId);
+      if (old_cash >= qty * price) {
+        if (snapshot.exists()) {
+          const old_qty = Number(snapshot.val().qty);
+          const old_average_cost = Number(snapshot.val().average_cost);
+          const old_total_cost = Number(snapshot.val().total_cost);
+          update(stocksListRef, {
+            qty: old_qty + Number(qty),
+            total_cost: old_total_cost + Number(qty * price),
+            average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
+          })
+          addToHistory(userId, 'BUY', date, ticker, qty, price);
+          updateCash(userId, qty * price * -1);
+        } else {
+          // if the stock not in the portfolio
+          set(stocksListRef, { 
+            qty: Number(qty),
+            total_cost: Number(qty * price),
+            average_cost: Number(price)
+          })
+          addToHistory(userId, 'BUY', date, ticker, qty, price);
+          updateCash(userId, qty * price * -1);
+        }
       } else {
-        // if the stock not in the portfolio
-        set(stocksListRef, { 
-          qty: Number(qty),
-          total_cost: Number(qty * price),
-          average_cost: Number(price)
-        })
-        addToHistory(userId, 'BUY', date, ticker, qty, price);
-        updateCash(userId, qty * price * -1);
+        setErrorMessage("Insufficient funds, please top up!");
       }
     }).catch((error) => {
       console.error(error);
