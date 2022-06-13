@@ -154,6 +154,35 @@ function CryptoData() {
         price: price
     });
   }
+
+  function getCash(userId) {
+    const db = getDatabase();
+    const dbRef = ref(db, `users/${userId}`);
+
+    var records = [];
+
+    onValue(dbRef, (snapshot) => {
+      const old_cash = snapshot.val().cash;
+      records.push(old_cash);
+    });
+    return records[0];
+  }
+
+
+  function updateCash(userId, amount) {
+    const db = getDatabase();
+    const dbRef = ref(getDatabase());
+    const userRef = ref(db, `users/${userId}`)
+    get(child(dbRef, `users/${userId}`)).then((snapshot) => {
+      if (snapshot.exists()) {
+        const old_cash = Number(snapshot.val().cash);
+        update(userRef, {
+          cash: old_cash + amount
+        })
+      }
+    })
+  }
+
   
   function buyCrypto(userId, date, ticker, qty, price) {
     const db = getDatabase();
@@ -174,9 +203,9 @@ function CryptoData() {
       } else {
         // if the stock not in the portfolio
         set(cryptoListRef, { 
-          qty: qty,
-          total_cost: qty * price,
-          average_cost: price
+          qty: Number(qty),
+          total_cost: Number(qty * price),
+          average_cost: Number(price)
         })
         addToHistory(userId, 'BUY', date, ticker, qty, price);
       }
@@ -195,14 +224,14 @@ function CryptoData() {
         const old_qty = Number(snapshot.val().qty);
         const old_average_cost = Number(snapshot.val().average_cost);
         const old_total_cost = Number(snapshot.val().total_cost);
-        if (old_qty > qty) {
+        if (old_qty > Number(qty)) {
           update(cryptoListRef, {
             qty: old_qty - Number(qty),
             total_cost: old_total_cost - Number(old_average_cost * qty),
             average_cost: (old_total_cost - Number(old_average_cost * qty)) / (old_qty - Number(qty))
           })
           addToHistory(userId, 'SELL', date, ticker, qty, price);
-        } else if (old_qty == qty) {
+        } else if (old_qty == Number(qty)) {
           remove(cryptoListRef);
           addToHistory(userId, 'SELL', date, ticker, qty, price);
         } else {
