@@ -1,25 +1,8 @@
 import * as React from "react";
-import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import MuiDrawer from "@mui/material/Drawer";
+import { styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
-import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import { mainListItems, secondaryListItems } from "../Sidebar/listItems";
-import Chart from "../Dashboard/Chart";
-import Deposits from "../Dashboard/Deposits";
-import Orders from "../Dashboard/Orders";
 import axios from "axios";
 import Plot from "react-plotly.js";
 import "../Stocks/StockData.css";
@@ -240,7 +223,7 @@ function CryptoData() {
           })
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
-        } else if (old_qty == Number(qty)) {
+        } else if (old_qty === Number(qty)) {
           remove(cryptoListRef);
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
@@ -284,10 +267,10 @@ function CryptoData() {
       console.log(price);
       console.log(user.email);
       // executing of the functions into the database when submit
-      if (buysellaction == "buy") {
+      if (buysellaction === "buy") {
         buyCrypto(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), crypto, quantity, price);
       } 
-      if (buysellaction == "sell") {
+      if (buysellaction === "sell") {
         sellCrypto(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), crypto, quantity, price);
       }
     } catch (error) {
