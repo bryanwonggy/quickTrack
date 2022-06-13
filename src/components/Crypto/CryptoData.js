@@ -200,6 +200,7 @@ function CryptoData() {
           average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
         })
         addToHistory(userId, 'BUY', date, ticker, qty, price);
+        updateCash(userId, qty * price * -1);
       } else {
         // if the stock not in the portfolio
         set(cryptoListRef, { 
@@ -208,6 +209,7 @@ function CryptoData() {
           average_cost: Number(price)
         })
         addToHistory(userId, 'BUY', date, ticker, qty, price);
+        updateCash(userId, qty * price * -1);
       }
     }).catch((error) => {
       console.error(error);
@@ -231,9 +233,11 @@ function CryptoData() {
             average_cost: (old_total_cost - Number(old_average_cost * qty)) / (old_qty - Number(qty))
           })
           addToHistory(userId, 'SELL', date, ticker, qty, price);
+          updateCash(userId, qty * price);
         } else if (old_qty == Number(qty)) {
           remove(cryptoListRef);
           addToHistory(userId, 'SELL', date, ticker, qty, price);
+          updateCash(userId, qty * price);
         } else {
           // insufficient qty to sell 
           console.log("Insufficient crypto to sell");
