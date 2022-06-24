@@ -119,7 +119,7 @@ function DashboardContent() { //MAIN CODE HERE
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              CASH
+              Cash
             </Typography>
             {user && user.email}
           </Toolbar>

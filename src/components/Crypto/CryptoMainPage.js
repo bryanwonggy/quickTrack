@@ -117,7 +117,7 @@ function DashboardContent() { //MAIN CODE HERE
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              CRYPTO
+              Crypto
             </Typography>
             {user && user.email}
           </Toolbar>

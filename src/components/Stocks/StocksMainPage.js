@@ -117,7 +117,7 @@ function StocksMainPage() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              STOCKS
+              Stocks
             </Typography>
             {user && user.email}
           </Toolbar>

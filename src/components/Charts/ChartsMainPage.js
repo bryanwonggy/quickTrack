@@ -116,7 +116,7 @@ function DashboardContent() { //MAIN CODE HERE
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              CHARTS
+              Charts
             </Typography>
             {user && user.email}
           </Toolbar>

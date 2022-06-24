@@ -116,7 +116,7 @@ function DashboardContent() { //MAIN CODE HERE
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              NEWS
+              News
             </Typography>
             {user && user.email}
           </Toolbar>

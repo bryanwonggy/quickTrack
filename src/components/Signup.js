@@ -19,14 +19,14 @@ function addToHistory(userId, type, date, ticker, qty, price) {
 
 function writeUserData(userId, email) {
   const db = getDatabase();
-
   // handling userId to get unique Id
   const slicedUser = (userId.split("@")[0] + userId.split("@")[1]).split(".")[0]; 
   set(ref(db, 'users/' + slicedUser), {
     userId: slicedUser,
     email: email,
     cash: 0,
-    history: 'CREATED'
+    history: 'CREATED',
+    pnl: 0
   });
 }
 

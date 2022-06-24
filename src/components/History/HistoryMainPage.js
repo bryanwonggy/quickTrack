@@ -170,7 +170,7 @@ function DashboardContent() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              HISTORY
+              History
             </Typography>
             {user && user.email}
           </Toolbar>

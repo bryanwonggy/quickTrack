@@ -11,6 +11,7 @@ import Signup from "./components/Signup";
 import { AuthContextProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { getDatabase, ref, set, onValue } from "firebase/database";
 
 function App() {
   return (
@@ -35,5 +36,6 @@ function App() {
     </div>
   );
 }
+
 
 export default App;

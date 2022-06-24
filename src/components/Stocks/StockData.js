@@ -84,6 +84,40 @@ function StockData() {
         price: price
     });
   }
+
+  function getAvgCost(userId, ticker, type) {
+    const db = getDatabase();
+    const tickerListRef = ref(db, `users/${userId}/${type}/${ticker}`);
+
+    var records = [];
+
+    onValue(tickerListRef, (snapshot) => {
+      const avg_cost = snapshot.val().average_cost;
+      records.push(avg_cost);
+    });
+    return records[0];
+  }
+  
+  function updatePL(userId, type, ticker, price, qty) {
+    const db = getDatabase();
+    const userRef = ref(db, `users/${userId}`);
+    const dbRef = ref(getDatabase());
+    const avg_cost = getAvgCost(userId, ticker, type);
+    const amount = price * qty - avg_cost * qty;
+
+    //update PL
+    get(child(dbRef, `users/${userId}`)).then((snapshot) => {
+      if (snapshot.exists()) {
+        const old_pnl = Number(snapshot.val().pnl);
+        const new_amount = Number(old_pnl + amount);
+        console.log(new_amount);
+        update(userRef, {
+          pnl: new_amount
+        })
+      }
+    })
+  }
+
   
   function getCash(userId) {
     const db = getDatabase();
@@ -98,7 +132,6 @@ function StockData() {
     return records[0];
   }
 
-
   function updateCash(userId, amount) {
     const db = getDatabase();
     const dbRef = ref(getDatabase());
@@ -112,7 +145,6 @@ function StockData() {
       }
     })
   }
-
 
   function buyStock(userId, date, ticker, qty, price) {
     const db = getDatabase();
@@ -162,6 +194,7 @@ function StockData() {
         const old_average_cost = Number(snapshot.val().average_cost);
         const old_total_cost = Number(snapshot.val().total_cost);
         if (old_qty > Number(qty)) {
+          updatePL(userId, 'stocks', ticker, price, qty);
           update(stocksListRef, {
             qty: old_qty - Number(qty),
             total_cost: old_total_cost - Number(old_average_cost * qty),
@@ -170,6 +203,7 @@ function StockData() {
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
         } else if (old_qty === Number(qty)) {
+          updatePL(userId, 'stocks', ticker, price, qty);
           remove(stocksListRef);
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
@@ -237,8 +271,6 @@ function StockData() {
   }
 
 
-
-
   const [buysellaction, setBuySell] = React.useState("");
   const [date, setDate] = React.useState(null);
   const [stock, setStock] = React.useState("");
@@ -258,10 +290,10 @@ function StockData() {
       
       // executing of the functions into the database when submit
       if (buysellaction === "buy") {
-        buyStock(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), stock, quantity, price);
+        buyStock(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), stock, Number(quantity), Number(price));
       } 
       if (buysellaction === "sell") {
-        sellStock(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), stock, quantity, price);
+        sellStock(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), stock, Number(quantity), Number(price));
       }
     } catch (error) {
       console.log(error);

@@ -138,6 +138,39 @@ function CryptoData() {
     });
   }
 
+  function getAvgCost(userId, ticker, type) {
+    const db = getDatabase();
+    const tickerListRef = ref(db, `users/${userId}/${type}/${ticker}`);
+
+    var records = [];
+
+    onValue(tickerListRef, (snapshot) => {
+      const avg_cost = snapshot.val().average_cost;
+      records.push(avg_cost);
+    });
+    return records[0];
+  }
+  
+  function updatePL(userId, type, ticker, price, qty) {
+    const db = getDatabase();
+    const userRef = ref(db, `users/${userId}`);
+    const dbRef = ref(getDatabase());
+    const avg_cost = getAvgCost(userId, ticker, type);
+    const amount = price * qty - avg_cost * qty;
+
+    //update PL
+    get(child(dbRef, `users/${userId}`)).then((snapshot) => {
+      if (snapshot.exists()) {
+        const old_pnl = Number(snapshot.val().pnl);
+        const new_amount = Number(old_pnl + amount);
+        console.log(new_amount);
+        update(userRef, {
+          pnl: new_amount
+        })
+      }
+    })
+  }
+
   function getCash(userId) {
     const db = getDatabase();
     const dbRef = ref(db, `users/${userId}`);
@@ -216,6 +249,7 @@ function CryptoData() {
         const old_average_cost = Number(snapshot.val().average_cost);
         const old_total_cost = Number(snapshot.val().total_cost);
         if (old_qty > Number(qty)) {
+          updatePL(userId, 'crypto', ticker, price, qty);
           update(cryptoListRef, {
             qty: old_qty - Number(qty),
             total_cost: old_total_cost - Number(old_average_cost * qty),
@@ -224,6 +258,7 @@ function CryptoData() {
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
         } else if (old_qty === Number(qty)) {
+          updatePL(userId, 'crypto', ticker, price, qty);
           remove(cryptoListRef);
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
