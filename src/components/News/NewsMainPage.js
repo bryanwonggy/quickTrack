@@ -21,6 +21,7 @@ import Chart from '../Dashboard/Chart';
 import Deposits from '../Dashboard/Deposits';
 import Orders from '../Dashboard/Orders';
 import { UserAuth } from '../../context/AuthContext'
+import axios from "axios";
 
 
 const drawerWidth = 240;
@@ -86,6 +87,32 @@ function DashboardContent() { //MAIN CODE HERE
     setOpen(!open);
   };
   const { user, logout } = UserAuth();
+  const API_KEY = "R8QVYYFNVOKVRKP4"; //AlphaVantage
+  const API_KEY_2 = "AQ84YYYGZLMH5O2S";
+  const API_KEY_3 = "T7GOS9UY9JV7Y6QF"
+  const APIKEY = "S97jgoPL8qAK3863bTqy9dp2ii0GFdvsckuYGXVP";
+  const [stockNews, updateStockNews] = React.useState({});
+  const [cryptoNews, updateCryptoNews] = React.useState({});
+
+
+  function searchForStockNews(event) {
+    var APICallString = `https://api.marketaux.com/v1/news/all?symbols=TSLA%2CAMZN%2CMSFT&filter_entities=true&language=en&api_token=${}` //took out time from:
+    let tempSummaryInfo = [];
+
+    axios
+      .get(APICallString)
+      .then(function (response) {
+        console.log(response.data)
+        updateStockNews(response.data)
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
+  searchForStockNews();
+
+
 
   return (
     <ThemeProvider theme={mdTheme}>
