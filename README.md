@@ -1,70 +1,98 @@
-# Getting Started with Create React App
+## Team Name:
+camelCase
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Proposed Level of Achievement: 
+Apollo 11
 
-## Available Scripts
+## Motivation:
+Similar to the fact that most people own more than 1 bank account, we realised that more and more people are getting into investing, be it stocks or cryptocurrency and they tend to have more than 1 brokerage account to get the best fees. This causes a problem for retail investors in keeping track of their total profit and losses over all their accounts as well as tracking the total current value of their portfolios since most brokerage platforms only either do crypto or stocks, but not both. 
 
-In the project directory, you can run:
+These days there are also many news platforms for financial news but most of the time such sites have too much information, which are often not curated to our preferences. This makes it troublesome for owners of both stocks and cryptocurrency to get updated on the latest news at a glance as they search the news platform just to get an update on news that might concern their portfolios. 
 
-### `npm start`
+## User Stories
+1. As a student who holds stocks and cryptocurrency on different brokerage platforms, I want to be able to track the components of my entire portfolio on a single platform.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+2. As a student who trades stocks and cryptocurrency on different brokerage platforms, I want to be able to track my total profit/loss on a single platform. 
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+3. As a retail investor, I want to be able to be constantly updated on the latest financial news for both stocks and cryptocurrency.
 
-### `npm test`
+4. As a retail investor, I want to be able to assess my current net worth, consisting of both cash as well as stock equity and crypto all on a single platform.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+5. As a retail investor, I want to be able to view my previous trade history for both stock and crypto all on a single platform
 
-### `npm run build`
+6. As a retail investor, I want to be able to visualise the long term progress of my stock and crypto portfolio in the form of charts and graphs
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Project Scope
+quickTrack is a one-stop web application for retail investors to track their stock and cryptocurrency portfolio, together with their net profit/loss. 
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Users can use our application to track their entire portfolio, be it stocks or cryptocurrency, and see the performance of their portfolio over time. They will be able to log down their buys and sells from their brokerage platforms and our application can allow them to track their total profit/loss all on a single platform. Furthermore, they will be able to view financial news relevant to their holdings on the application.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+## Patch Updates: 
+### Milestone 1
++ Login system that allows users to sign up, sign in or logout using their email and password
++ Protected routes such that users are not able to access the web app if they are not signed in. (Unable to bypass by just using `/${directory}` command
++ Navigation bar has different buttons that will link users to different directory/pages of their choice
++ In the stocks and crypto directory, users can search for a stock/crypto of their choice and the relevant information such as real-time stock quotes and charts of their historic prices will be displayed
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Milestone 2
+#### Dashboard Page
++ Created realised P&L tracker that tracks profit & losses from user’s trades
++ Created a currents holding table that lists all of the user’s current holdings, be it stock or crypto (shows ticker symbol, quantity, average cost and total cost)
+#### Cash Page
++ Created cash component as a user property in backend and created a whole new cash page comprising of a Deposit/Withdraw Cash form & Current Cash indicator in user’s account
++ Deposit/Withdraw Cash form consists of 4 components (Deposit/Withdraw dropdown selector, Date input, Amount and Submit Button)
++ Form is connected to backend and parses data into user’s cash property
++ Current Cash indicator reflects realtime cash data in user’s account
+#### Stocks & Crypto Page
++ Created a Buy/Sell Form for both Stock & Crypto page. Form consists of 6 components (Buy/Sell dropdown selector, Date input, Ticker Symbol input, Quantity input, Price input and Submit Button)
++ Form is connected to backend and parses input data into user’s property in Firebase
++ Fixed bugs for search bar and submit button
++ Now handles exceptions for Buy/Sell transactions (Eg. Not enough Cash to purchase, unable to sell something user does not own, unable to sell more Stock/Crypto than quantity that user actually owns)
+#### Charts Page
++ Plots a pie chart to show the Risk Allocation of Capital for each user (Realtime Valuation of user’s exposure to Cash, Stock & Crypto)
++ History Page
++ Pulls data from backend Firebase and shows all previous transactions executed by the user (Deposit/Withdraw/Buy/Sell, Ticker Symbol, Date, Quantity, Price)
++ Displays the data in a table format
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Timeline and Development Plan: 
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Milestone
+Date
+Description
+In-Charge
+3
+28/6 - 17/7
+Plot a chart on realised P&L against time
+Bryan 
+Ying Jie
+Able to display financial news
+Bryan
+Ying Jie
+Filtering news to user’s holdings
+Bryan
+Ying Jie
+18/7 - 25/7
+UI / UX enhancements
+Bryan
+Ying Jie
+Tidying up of code & fixing bugs
+Bryan
+Ying Jie
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## How to use our web app: 
+Go to our web app: https://master.daain0yesm9fy.amplifyapp.com 
+Sign in to our webapp with your email and password if you are an existing user. If you are not an existing user, you may want to sign up for a new account with us via the sign up link. 
+(NOTE: If u have previously signed up with us during Milestone 1, please kindly sign up for a new account for Milestone 2 as there are new features that are not initialised in your previous Milestone 1 account settings)
+After logging into the account, you will be redirected to the dashboard where you will see your email username on the top right hand corner of the web app
+Once there, any of the icons on the sidebar will route you to the other pages that we have in our web app. Currently, the cash, stocks, crypto & history pages are fully ready for testing. Parts of the dashboard & charts page are enabled.
+[Please refer to the patch updates above to see which features are currently enabled]
+Once done, the user can simply click on the logout icon button on the sidebar to exit from our web app and he / she will be redirected to the login page.
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Work Log: 
+https://docs.google.com/spreadsheets/d/1aM_a9qod_enT3JA0SUo_tSakVWYWPVw3hAc1Ejy9KHc/edit?usp=sharing 
