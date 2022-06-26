@@ -51,7 +51,7 @@ Users can use our application to track their entire portfolio, be it stocks or c
 + Now handles exceptions for Buy/Sell transactions (Eg. Not enough Cash to purchase, unable to sell something user does not own, unable to sell more Stock/Crypto than quantity that user actually owns)
 #### Charts Page
 + Plots a pie chart to show the Risk Allocation of Capital for each user (Realtime Valuation of user’s exposure to Cash, Stock & Crypto)
-+ History Page
+#### History Page
 + Pulls data from backend Firebase and shows all previous transactions executed by the user (Deposit/Withdraw/Buy/Sell, Ticker Symbol, Date, Quantity, Price)
 + Displays the data in a table format
 
