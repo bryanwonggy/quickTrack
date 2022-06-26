@@ -95,22 +95,22 @@ function DashboardContent() { //MAIN CODE HERE
   const [cryptoNews, updateCryptoNews] = React.useState({});
 
 
-  function searchForStockNews(event) {
-    var APICallString = `https://api.marketaux.com/v1/news/all?symbols=TSLA%2CAMZN%2CMSFT&filter_entities=true&language=en&api_token=${}` //took out time from:
-    let tempSummaryInfo = [];
+  // function searchForStockNews(event) {
+  //   var APICallString = `https://api.marketaux.com/v1/news/all?symbols=TSLA%2CAMZN%2CMSFT&filter_entities=true&language=en&api_token=${}` //took out time from:
+  //   let tempSummaryInfo = [];
 
-    axios
-      .get(APICallString)
-      .then(function (response) {
-        console.log(response.data)
-        updateStockNews(response.data)
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
+  //   axios
+  //     .get(APICallString)
+  //     .then(function (response) {
+  //       console.log(response.data)
+  //       updateStockNews(response.data)
+  //     })
+  //     .catch(function (error) {
+  //       console.log(error);
+  //     });
+  // }
 
-  searchForStockNews();
+  // searchForStockNews();
 
 
 

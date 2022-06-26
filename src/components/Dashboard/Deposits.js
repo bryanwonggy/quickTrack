@@ -1,7 +1,7 @@
-import * as React from 'react';
-import Link from '@mui/material/Link';
-import Typography from '@mui/material/Typography';
-import Title from './Title';
+import * as React from "react";
+import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
+import Title from "./Title";
 import { UserAuth } from "../../context/AuthContext";
 import {
   getDatabase,
@@ -15,15 +15,16 @@ import {
   onValue,
 } from "firebase/database";
 
-export function getCurrentDate(separator='/'){
-
-  let newDate = new Date()
+export function getCurrentDate(separator = "/") {
+  let newDate = new Date();
   let date = newDate.getDate();
   let month = newDate.getMonth() + 1;
   let year = newDate.getFullYear();
-  
-  return `${date}${separator}${month<10?`0${month}`:`${month}`}${separator}${year}`
-  }
+
+  return `${date}${separator}${
+    month < 10 ? `0${month}` : `${month}`
+  }${separator}${year}`;
+}
 
 function preventDefault(event) {
   event.preventDefault();
@@ -44,10 +45,9 @@ function getPL(userId) {
 
 export default function Deposits() {
   const { user, logout } = UserAuth();
-
   const userId = (user.email.split("@")[0] + user.email.split("@")[1]).split(
     "."
-  )[0]; 
+  )[0];
 
   const current_pnl = getPL(userId).toFixed(2);
 

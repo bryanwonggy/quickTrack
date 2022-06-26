@@ -1,86 +1,159 @@
-import * as React from 'react';
-import Link from '@mui/material/Link';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Title from './Title';
+import * as React from "react";
+import Link from "@mui/material/Link";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Title from "./Title";
+import Container from "@mui/material/Container";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
+import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
+import { Table } from "react-bootstrap";
+import { UserAuth } from "../../context/AuthContext";
+import {
+  getDatabase,
+  ref,
+  set,
+  child,
+  get,
+  push,
+  update,
+  remove,
+  onValue,
+} from "firebase/database";
 
-// Generate Order Data
-function createData(id, date, name, shipTo, paymentMethod, amount) {
-  return { id, date, name, shipTo, paymentMethod, amount };
-}
+// function getStockDetails(userId) {
+//   const db = getDatabase();
+//   const dbRef = ref(db, `users/${userId}/stocks`);
 
-const rows = [
-  createData(
-    0,
-    '16 Mar, 2019',
-    'Elvis Presley',
-    'Tupelo, MS',
-    'VISA ⠀•••• 3719',
-    312.44,
-  ),
-  createData(
-    1,
-    '16 Mar, 2019',
-    'Paul McCartney',
-    'London, UK',
-    'VISA ⠀•••• 2574',
-    866.99,
-  ),
-  createData(2, '16 Mar, 2019', 'Tom Scholz', 'Boston, MA', 'MC ⠀•••• 1253', 100.81),
-  createData(
-    3,
-    '16 Mar, 2019',
-    'Michael Jackson',
-    'Gary, IN',
-    'AMEX ⠀•••• 2000',
-    654.39,
-  ),
-  createData(
-    4,
-    '15 Mar, 2019',
-    'Bruce Springsteen',
-    'Long Branch, NJ',
-    'VISA ⠀•••• 5919',
-    212.79,
-  ),
-];
+//   var records = [];
+//   onValue(dbRef, (snapshot) => {
+//     snapshot.forEach((childSnapshot) => {
+//       let keyName = childSnapshot.val();
+//       let data = childSnapshot.val();
+//       console.log(data)
+//       records.push([keyName, data.qty, data.average_cost, data.total_cost]);
+//       console.log("HERE")
+//       console.log(records)
+//     });
+//   });
+//   console.log("THERE")
+//   console.log(records)
+//   return records;
+// }
 
-function preventDefault(event) {
-  event.preventDefault();
-}
+// function getCryptoDetails(userId) {
+//   const db = getDatabase();
+//   const dbRef = ref(db, `users/${userId}/crypto`);
+
+//   var records = [];
+//   onValue(dbRef, (snapshot) => {
+//     snapshot.forEach((childSnapshot) => {
+//       let keyName = childSnapshot.val();
+//       let data = childSnapshot.val();
+//       records.push([keyName, data.qty, data.average_cost, data.total_cost]);
+//     });
+//   });
+//   return records;
+// }
+
+const mdTheme = createTheme({
+  palette: {
+    type: "light",
+    primary: {
+      main: "#3f50b5",
+    },
+  },
+});
 
 export default function Orders() {
+  function getStockDetails(userId) {
+    const db = getDatabase();
+    const dbRef = ref(db, `users/${userId}/stocks`);
+
+    var records = [];
+    onValue(dbRef, (snapshot) => {
+      snapshot.forEach((childSnapshot) => {
+        let keyName = childSnapshot.key;
+        let data = childSnapshot.val();
+        console.log(data);
+        records.push([keyName, data.qty, data.average_cost, data.total_cost]);
+        console.log("HERE");
+        console.log(records);
+      });
+    });
+    console.log("THERE");
+    console.log(records);
+    return records;
+  }
+
+  function getCryptoDetails(userId) {
+    const db = getDatabase();
+    const dbRef = ref(db, `users/${userId}/crypto`);
+
+    var records = [];
+    onValue(dbRef, (snapshot) => {
+      snapshot.forEach((childSnapshot) => {
+        let keyName = childSnapshot.key;
+        let data = childSnapshot.val();
+        records.push([keyName, data.qty, data.average_cost, data.total_cost]);
+      });
+    });
+    return records;
+  }
+
+  const { user, logout } = UserAuth();
+  const user_email = String(user.email);
+  const slicedUser = (
+    user_email.split("@")[0] + user_email.split("@")[1]
+  ).split(".")[0];
+  const records1 = getStockDetails(slicedUser);
+  const records2 = getCryptoDetails(slicedUser);
+  const records = [];
+  for (let i = 0; i< records1.length; i++) {
+    records.push(records1[i]);
+  }
+  for (let j = 0; j < records2.length; j++) {
+    records.push(records2[j]);
+  }
+  const Ticker = [];
+  const Quantity = [];
+  const Average_Cost = [];
+  const Total_Cost = [];
+  // console.log(records);
+  // console.log(getStockDetails(slicedUser))
+  for (let i = 0; i < records.length; i++) {
+    Ticker.push(records[i][0]);
+    Quantity.push(records[i][1]);
+    Average_Cost.push(records[i][2]);
+    Total_Cost.push(records[i][3]);
+  }
+
+  var rows = [];
+  for (var i = 0; i < records.length; i++) {
+    rows.push(
+      <tr>
+        <td>{Ticker[i]}</td>
+        <td>{Quantity[i]}</td>
+        <td>{Average_Cost[i]}</td>
+        <td>{Total_Cost[i]}</td>
+      </tr>
+    );
+  }
+
   return (
-    <React.Fragment>
-      <Title>Recent Orders</Title>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Ship To</TableCell>
-            <TableCell>Payment Method</TableCell>
-            <TableCell align="right">Sale Amount</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell>{row.date}</TableCell>
-              <TableCell>{row.name}</TableCell>
-              <TableCell>{row.shipTo}</TableCell>
-              <TableCell>{row.paymentMethod}</TableCell>
-              <TableCell align="right">{`$${row.amount}`}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Link color="primary" href="#" onClick={preventDefault} sx={{ mt: 3 }}>
-        See more orders
-      </Link>
-    </React.Fragment>
+    <Table>
+      <thead>
+        <tr><th>Current Holdings</th></tr>
+        <tr>
+          <th>Ticker</th>
+          <th>Quantity</th>
+          <th>Average Cost</th>
+          <th>Total Cost</th>
+        </tr>
+      </thead>
+      <tbody>{rows}</tbody>
+    </Table>
   );
 }
