@@ -2,6 +2,9 @@
   "name": "orbital",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "16.5.0"
+  },
   "dependencies": {
     "@emotion/react": "^11.9.3",
     "@emotion/styled": "^11.9.3",
