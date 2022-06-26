@@ -11,7 +11,7 @@ import Signup from "./components/Signup";
 import { AuthContextProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { getDatabase, ref, set, onValue } from "firebase/database";
+import { getDatabase, ref, set, onValue, push } from "firebase/database";
 
 function App() {
   return (
@@ -37,5 +37,16 @@ function App() {
   );
 }
 
+function storePL(userId, pnl, date) {
+  const db = getDatabase();
+  const historyListRef = ref(db, `users/${userId}/pnlHistory`);
+  const newTxnRef = push(historyListRef);
+  set(newTxnRef, {
+    date: date,
+    pnl: pnl
+  });
+}
+
+//storePL('bryan3gmail', 100, '06/24/2022')
 
 export default App;

@@ -94,7 +94,7 @@ function DashboardContent() { //MAIN CODE HERE
   const [stockNews, updateStockNews] = React.useState({});
   const [cryptoNews, updateCryptoNews] = React.useState({});
 
-
+  /*
   function searchForStockNews(event) {
     var APICallString = `https://api.marketaux.com/v1/news/all?symbols=TSLA%2CAMZN%2CMSFT&filter_entities=true&language=en&api_token=${}` //took out time from:
     let tempSummaryInfo = [];
@@ -111,7 +111,7 @@ function DashboardContent() { //MAIN CODE HERE
   }
 
   searchForStockNews();
-
+  */
 
 
   return (

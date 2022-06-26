@@ -97,8 +97,18 @@ function StockData() {
     });
     return records[0];
   }
+
+  function storePL(userId, pnl, date) {
+    const db = getDatabase();
+    const historyListRef = ref(db, `users/${userId}/pnlHistory`);
+    const newTxnRef = push(historyListRef);
+    set(newTxnRef, {
+      date: date,
+      pnl: pnl
+    });
+  }
   
-  function updatePL(userId, type, ticker, price, qty) {
+  function updatePL(userId, type, ticker, price, qty, date) {
     const db = getDatabase();
     const userRef = ref(db, `users/${userId}`);
     const dbRef = ref(getDatabase());
@@ -114,6 +124,7 @@ function StockData() {
         update(userRef, {
           pnl: new_amount
         })
+        storePL(userId, new_amount, date)
       }
     })
   }
@@ -194,7 +205,7 @@ function StockData() {
         const old_average_cost = Number(snapshot.val().average_cost);
         const old_total_cost = Number(snapshot.val().total_cost);
         if (old_qty > Number(qty)) {
-          updatePL(userId, 'stocks', ticker, price, qty);
+          updatePL(userId, 'stocks', ticker, price, qty, date);
           update(stocksListRef, {
             qty: old_qty - Number(qty),
             total_cost: old_total_cost - Number(old_average_cost * qty),
@@ -203,7 +214,7 @@ function StockData() {
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
         } else if (old_qty === Number(qty)) {
-          updatePL(userId, 'stocks', ticker, price, qty);
+          updatePL(userId, 'stocks', ticker, price, qty, date);
           remove(stocksListRef);
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
