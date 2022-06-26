@@ -55,31 +55,12 @@ Users can use our application to track their entire portfolio, be it stocks or c
 + Pulls data from backend Firebase and shows all previous transactions executed by the user (Deposit/Withdraw/Buy/Sell, Ticker Symbol, Date, Quantity, Price)
 + Displays the data in a table format
 
-Timeline and Development Plan: 
+### Timeline and Development Plan: 
 
-Milestone
-Date
-Description
-In-Charge
-3
-28/6 - 17/7
-Plot a chart on realised P&L against time
-Bryan 
-Ying Jie
-Able to display financial news
-Bryan
-Ying Jie
-Filtering news to user’s holdings
-Bryan
-Ying Jie
-18/7 - 25/7
-UI / UX enhancements
-Bryan
-Ying Jie
-Tidying up of code & fixing bugs
-Bryan
-Ying Jie
-
+| Milestone     | Date          | Description  | In-Charge |
+| ------------- | ------------- | ------------ | --------- |
+| 3   | 28/6 - 17/7 | Plot a chart on realised P&L against time <br /> Able to display financial news <br /> Filtering news to user’s holdings | Bryan <br /> Ying Jie |
+| 3 | 18/7 - 25/7      |   UI / UX enhancements <br /> Tidying up of code & fixing bugs | Bryan <br /> Ying Jie |
 
 
 
