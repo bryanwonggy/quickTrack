@@ -77,14 +77,14 @@ export default function Orders() {
       snapshot.forEach((childSnapshot) => {
         let keyName = childSnapshot.key;
         let data = childSnapshot.val();
-        console.log(data);
+        //console.log(data);
         records.push([keyName, data.qty, data.average_cost, data.total_cost]);
-        console.log("HERE");
-        console.log(records);
+        //console.log("HERE");
+        //console.log(records);
       });
     });
-    console.log("THERE");
-    console.log(records);
+    //console.log("THERE");
+    //console.log(records);
     return records;
   }
 
@@ -136,8 +136,8 @@ export default function Orders() {
       <tr>
         <td>{Ticker[i]}</td>
         <td>{Quantity[i]}</td>
-        <td>{Average_Cost[i]}</td>
-        <td>{Total_Cost[i]}</td>
+        <td>${Average_Cost[i]}</td>
+        <td>${Total_Cost[i]}</td>
       </tr>
     );
   }

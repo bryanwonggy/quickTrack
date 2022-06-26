@@ -178,7 +178,7 @@ function DashboardContent() { //MAIN CODE HERE
             overflow: 'auto',
           }}
         >
-          <Toolbar />
+          
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
               {/* Chart */}
@@ -191,7 +191,6 @@ function DashboardContent() { //MAIN CODE HERE
                     height: 240,
                   }}
                 >
-                  <Chart />
                 </Paper>
               </Grid>
               {/* Recent Deposits */}
@@ -204,13 +203,11 @@ function DashboardContent() { //MAIN CODE HERE
                     height: 240,
                   }}
                 >
-                  <Deposits />
                 </Paper>
               </Grid>
               {/* Recent Orders */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Orders />
                 </Paper>
               </Grid>
             </Grid>
@@ -220,6 +217,7 @@ function DashboardContent() { //MAIN CODE HERE
     </ThemeProvider>
   );
 }
+
 
 export default function Dashboard() {
   return <DashboardContent />;

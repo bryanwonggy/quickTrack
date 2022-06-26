@@ -37,16 +37,47 @@ function App() {
   );
 }
 
-function storePL(userId, pnl, date) {
+function getStockDetails(userId) {
   const db = getDatabase();
-  const historyListRef = ref(db, `users/${userId}/pnlHistory`);
-  const newTxnRef = push(historyListRef);
-  set(newTxnRef, {
-    date: date,
-    pnl: pnl
+  const dbRef = ref(db, `users/${userId}/stocks`);
+
+  var records = [];
+
+  onValue(dbRef, (snapshot) => {
+    snapshot.forEach((childSnapshot) => {
+      let keyName = childSnapshot.key;
+      let data = childSnapshot.val();
+      records.push([
+        keyName,
+        data.qty,
+        data.average_cost,
+        data.total_cost,
+      ]);
+    });
   });
+  return records;
 }
 
-//storePL('bryan3gmail', 100, '06/24/2022')
+function getCryptoDetails(userId) {
+  const db = getDatabase();
+  const dbRef = ref(db, `users/${userId}/crypto`);
+
+  var records = [];
+
+  onValue(dbRef, (snapshot) => {
+    snapshot.forEach((childSnapshot) => {
+      let keyName = childSnapshot.key;
+      let data = childSnapshot.val();
+      records.push([
+        keyName,
+        data.qty,
+        data.average_cost,
+        data.total_cost,
+      ]);
+    });
+  });
+  return records;
+}
+
 
 export default App;
