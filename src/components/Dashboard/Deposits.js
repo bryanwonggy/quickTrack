@@ -45,11 +45,10 @@ function getPL(userId) {
 
 export default function Deposits() {
   const { user, logout } = UserAuth();
-  const userId = (user.email.split("@")[0] + user.email.split("@")[1]).split(
+  const userId = (String(user.email).split("@")[0] + String(user.email).split("@")[1]).split(
     "."
   )[0];
-
-  const current_pnl = getPL(userId).toFixed(2);
+  const current_pnl = getPL(userId) != null ? getPL(userId).toFixed(2) : "0.00";
 
   const date = getCurrentDate();
 
