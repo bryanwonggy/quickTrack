@@ -67,13 +67,13 @@ Users can use our application to track their entire portfolio, be it stocks or c
 
 
 ## How to use our web app: 
-Go to our web app: https://master.daain0yesm9fy.amplifyapp.com 
-Sign in to our webapp with your email and password if you are an existing user. If you are not an existing user, you may want to sign up for a new account with us via the sign up link. 
++ Go to our web app: https://master.daain0yesm9fy.amplifyapp.com 
++ Sign in to our webapp with your email and password if you are an existing user. If you are not an existing user, you may want to sign up for a new account with us via the sign up link. 
 (NOTE: If u have previously signed up with us during Milestone 1, please kindly sign up for a new account for Milestone 2 as there are new features that are not initialised in your previous Milestone 1 account settings)
-After logging into the account, you will be redirected to the dashboard where you will see your email username on the top right hand corner of the web app
-Once there, any of the icons on the sidebar will route you to the other pages that we have in our web app. Currently, the cash, stocks, crypto & history pages are fully ready for testing. Parts of the dashboard & charts page are enabled.
++ After logging into the account, you will be redirected to the dashboard where you will see your email username on the top right hand corner of the web app
++ Once there, any of the icons on the sidebar will route you to the other pages that we have in our web app. Currently, the cash, stocks, crypto & history pages are fully ready for testing. Parts of the dashboard & charts page are enabled.
 [Please refer to the patch updates above to see which features are currently enabled]
-Once done, the user can simply click on the logout icon button on the sidebar to exit from our web app and he / she will be redirected to the login page.
++ Once done, the user can simply click on the logout icon button on the sidebar to exit from our web app and he / she will be redirected to the login page.
 
 ## Work Log: 
 https://docs.google.com/spreadsheets/d/1aM_a9qod_enT3JA0SUo_tSakVWYWPVw3hAc1Ejy9KHc/edit?usp=sharing 
