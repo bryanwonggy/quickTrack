@@ -77,7 +77,7 @@ export default function Orders() {
       snapshot.forEach((childSnapshot) => {
         let keyName = childSnapshot.key;
         let data = childSnapshot.val();
-        //console.log(data);
+        //console.log(childSnapshot);
         records.push([keyName, data.qty, data.average_cost, data.total_cost]);
         //console.log("HERE");
         //console.log(records);
