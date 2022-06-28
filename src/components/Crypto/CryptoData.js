@@ -322,7 +322,7 @@ function CryptoData() {
             <input
               type="text"
               className="txtbox"
-              onChange={(e) => updateTextFunc(e.target.value)}
+              onChange={(e) => updateTextFunc(e.target.value.toUpperCase())}
             ></input>
             <button className="button" onClick={(event) => searchForCrypto(event)}>
               Submit
@@ -430,7 +430,7 @@ function CryptoData() {
               </Grid>
               <Grid item xs={4}>
                 <TextField
-                  onChange={(e) => setCrypto(e.target.value)}
+                  onChange={(e) => setCrypto(e.target.value.toUpperCase())}
                   type="text"
                   placeholder="Choose Crypto"
                 ></TextField>

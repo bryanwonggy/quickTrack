@@ -147,10 +147,10 @@ export default function Orders() {
       <thead>
         <tr><th>Current Holdings</th></tr>
         <tr>
-          <th>Ticker</th>
-          <th>Quantity</th>
-          <th>Average Cost</th>
-          <th>Total Cost</th>
+          <th scope="col">Ticker</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Average Cost</th>
+          <th scope="col">Total Cost</th>
         </tr>
       </thead>
       <tbody>{rows}</tbody>

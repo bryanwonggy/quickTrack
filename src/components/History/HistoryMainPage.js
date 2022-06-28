@@ -214,11 +214,11 @@ function DashboardContent() {
                   <Table>
                     <thead>
                       <tr>
-                        <th>Type</th>
-                        <th>Date</th>
-                        <th>Ticker</th>
-                        <th>Quantity</th>
-                        <th>Price ($)</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Ticker</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Price ($)</th>
                       </tr>
                     </thead>
                     <tbody>

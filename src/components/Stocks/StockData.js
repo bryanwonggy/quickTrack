@@ -321,7 +321,7 @@ function StockData() {
             <input
               type="text"
               className="txtbox"
-              onChange={(e) => updateTextFunc(e.target.value)}
+              onChange={(e) => updateTextFunc(e.target.value.toUpperCase())}
             ></input>
             <button className="button" onClick={(event) => searchForStock(event)}>
               Submit
@@ -444,7 +444,7 @@ function StockData() {
               </Grid>
               <Grid item xs={4}>
                 <TextField
-                  onChange={(e) => setStock(e.target.value)}
+                  onChange={(e) => setStock(e.target.value.toUpperCase())}
                   type="text"
                   placeholder="Choose Stock"
                 ></TextField>
