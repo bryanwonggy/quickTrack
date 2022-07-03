@@ -283,7 +283,7 @@ function StockData() {
 
 
   const [buysellaction, setBuySell] = React.useState("");
-  const [date, setDate] = React.useState(null);
+  const [date, setDate] = React.useState(new Date());
   const [stock, setStock] = React.useState("");
   const [quantity, setQuantity] = React.useState("");
   const [price, setPrice] = React.useState("");
