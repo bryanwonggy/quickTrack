@@ -281,7 +281,7 @@ function CryptoData() {
   //BuySellToggle
   const [buysellaction, setBuySell] = React.useState("");
   //Date Toggle
-  const [date, setDate] = React.useState(null);
+  const [date, setDate] = React.useState(new Date());
   //Select Stock
   const [crypto, setCrypto] = React.useState("");
   //Select Quantity
