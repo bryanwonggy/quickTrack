@@ -133,7 +133,7 @@ function CashData() {
   //BuySellToggle
   const [depositWithdrawAction, setDepositWithdraw] = React.useState("");
   //Date Toggle
-  const [date, setDate] = React.useState(null);
+  const [date, setDate] = React.useState(new Date());
   //Select Price
   const [price, setPrice] = React.useState("");
 
