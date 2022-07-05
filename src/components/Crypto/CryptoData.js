@@ -292,7 +292,7 @@ function CryptoData() {
     if (val < 0) {
       setErrorMessage("You have entered a negative price. Please amend accordingly.");
     } else {
-      setQuantity(val);
+      setPrice(val);
     }
   }
 
@@ -326,6 +326,8 @@ function CryptoData() {
       if (buysellaction === "sell") {
         sellCrypto(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), crypto, quantity, price);
       }
+      // clear form when submit is clicked
+      event.target.reset();
     } catch (error) {
       console.log(error);
     }
