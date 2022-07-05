@@ -278,6 +278,24 @@ function CryptoData() {
     });
   }
 
+  function handleNegativeQty(e) {
+    const val = e.target.value;
+    if (val < 0) {
+      setErrorMessage("You have entered a negative quantity. Please amend accordingly.");
+    } else {
+      setQuantity(val);
+    }
+  }
+
+  function handleNegativePrice(e) {
+    const val = e.target.value;
+    if (val < 0) {
+      setErrorMessage("You have entered a negative price. Please amend accordingly.");
+    } else {
+      setQuantity(val);
+    }
+  }
+
   //BuySellToggle
   const [buysellaction, setBuySell] = React.useState("");
   //Date Toggle
@@ -451,12 +469,12 @@ function CryptoData() {
                 <TextField
                   type="number"
                   placeholder="Enter Quantity"
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={handleNegativeQty}
                 ></TextField>
               </Grid>
               <Grid item xs={4}>
                 <TextField
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={handleNegativePrice}
                   type="number"
                   placeholder="Enter Price"
                 ></TextField>

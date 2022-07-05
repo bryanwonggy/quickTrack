@@ -14,6 +14,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Button from "@mui/material/Button";
 import { UserAuth } from '../../context/AuthContext'
 import { getDatabase, ref, set, child, get, push, update, remove, onValue } from "firebase/database";
+import { el } from "date-fns/locale";
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -232,6 +233,24 @@ function StockData() {
     }).catch((error) => {
       console.error(error);
     });
+  }
+
+  function handleNegativeQty(e) {
+    const val = e.target.value;
+    if (val < 0) {
+      setErrorMessage("You have entered a negative quantity. Please amend accordingly.");
+    } else {
+      setQuantity(val);
+    }
+  }
+
+  function handleNegativePrice(e) {
+    const val = e.target.value;
+    if (val < 0) {
+      setErrorMessage("You have entered a negative price. Please amend accordingly.");
+    } else {
+      setQuantity(val);
+    }
   }
 
 
@@ -465,12 +484,12 @@ function StockData() {
                 <TextField
                   type="number"
                   placeholder="Enter Quantity"
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={handleNegativeQty}
                 ></TextField>
               </Grid>
               <Grid item xs={4}>
                 <TextField
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={handleNegativePrice}
                   type="number"
                   placeholder="Enter Price"
                 ></TextField>
