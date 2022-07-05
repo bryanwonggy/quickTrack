@@ -60,6 +60,8 @@ function CryptoData() {
   const [tickerSymbol, updateTicker] = React.useState("");
   const IEX_API_KEY = "pk_7ae7f450e7bd4274a7e4ded7019573ae";
   const [summaryData, updateSummaryData] = React.useState({});
+  const [ErrorMessage, setErrorMessage] = React.useState("");
+  const [SuccessMessage, setSuccessMessage] = React.useState("");
 
   const [timeSeriesData, updateTimeSeriesData] = React.useState({
     cryptoChartXValues: [],
@@ -219,6 +221,12 @@ function CryptoData() {
           })
           addToHistory(userId, 'BUY', date, ticker, qty, price);
           updateCash(userId, qty * price * -1);
+
+          // success feedback
+          setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         } else {
           // if the stock not already in the portfolio
           set(cryptoListRef, { 
@@ -228,10 +236,19 @@ function CryptoData() {
           })
           addToHistory(userId, 'BUY', date, ticker, qty, price);
           updateCash(userId, qty * price * -1);
+          
+          // success feedback
+          setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         }
       } else {
         // insufficient funds
         setErrorMessage("Insufficient funds, please top up!");
+        setTimeout(() => {
+          setErrorMessage(""); 
+        }, 3000);
       }
     }).catch((error) => {
       console.error(error);
@@ -257,21 +274,39 @@ function CryptoData() {
           })
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
+
+          // success feedback
+          setSuccessMessage(`You have successfully sold ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         } else if (old_qty === Number(qty)) {
           updatePL(userId, 'crypto', ticker, price, qty);
           remove(cryptoListRef);
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
+
+          // success feedback
+          setSuccessMessage(`You have successfully sold ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         } else {
           // insufficient qty to sell 
           console.log("Insufficient crypto to sell");
           setErrorMessage("Insufficient crypto to sell");
+          setTimeout(() => {
+            setErrorMessage(""); 
+          }, 3000);
         }
   
       } else {
         // if the crypto not in the portfolio
         console.log("No such crypto available");
         setErrorMessage("You do not own this crypto!");
+        setTimeout(() => {
+          setErrorMessage(""); 
+        }, 3000);
       }
     }).catch((error) => {
       console.error(error);
@@ -282,6 +317,9 @@ function CryptoData() {
     const val = e.target.value;
     if (val < 0) {
       setErrorMessage("You have entered a negative quantity. Please amend accordingly.");
+      setTimeout(() => {
+        setErrorMessage(""); 
+      }, 3000);
     } else {
       setQuantity(val);
     }
@@ -291,6 +329,9 @@ function CryptoData() {
     const val = e.target.value;
     if (val < 0) {
       setErrorMessage("You have entered a negative price. Please amend accordingly.");
+      setTimeout(() => {
+        setErrorMessage(""); 
+      }, 3000);
     } else {
       setPrice(val);
     }
@@ -308,7 +349,6 @@ function CryptoData() {
   const [price, setPrice] = React.useState("");
   const { user, logout } = UserAuth();
   const userId = (user.email.split("@")[0] + user.email.split("@")[1]).split(".")[0];
-  const [ErrorMessage, setErrorMessage] = React.useState("");
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -499,6 +539,7 @@ function CryptoData() {
         <Item>
           <div>
             {ErrorMessage ? <label className="danger">{ErrorMessage}</label> : null}
+            {SuccessMessage ? <label className="success">{SuccessMessage}</label> : null}
           </div>
         </Item>
       </Grid>

@@ -67,6 +67,7 @@ function StockData() {
   const [summaryData, updateSummaryData] = React.useState({});
   const { user, logout } = UserAuth();
   const [ErrorMessage, setErrorMessage] = React.useState("");
+  const [SuccessMessage, setSuccessMessage] = React.useState("");
 
   const [timeSeriesData, updateTimeSeriesData] = React.useState({
     stockChartXValues: [],
@@ -177,6 +178,12 @@ function StockData() {
           })
           addToHistory(userId, 'BUY', date, ticker, qty, price);
           updateCash(userId, qty * price * -1);
+
+          // success feedback 
+          setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         } else {
           // if the stock not in the portfolio
           set(stocksListRef, { 
@@ -186,9 +193,18 @@ function StockData() {
           })
           addToHistory(userId, 'BUY', date, ticker, qty, price);
           updateCash(userId, qty * price * -1);
+          
+          // success feedback 
+          setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         }
       } else {
         setErrorMessage("Insufficient funds, please top up!");
+        setTimeout(() => {
+          setErrorMessage(""); 
+        }, 3000);
       }
     }).catch((error) => {
       console.error(error);
@@ -214,21 +230,39 @@ function StockData() {
           })
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
+          
+          // success feedback 
+          setSuccessMessage(`You have successfully sold ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         } else if (old_qty === Number(qty)) {
           updatePL(userId, 'stocks', ticker, price, qty, date);
           remove(stocksListRef);
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
+          
+          // success feedback 
+          setSuccessMessage(`You have successfully sold ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         } else {
           // insufficient qty to sell 
           console.log("Insufficient stock to sell");
           setErrorMessage("Insufficient stock to sell");
+          setTimeout(() => {
+            setErrorMessage(""); 
+          }, 3000);
         }
   
       } else {
         // if the stock not in the portfolio
         console.log("You do not own this stock!");
         setErrorMessage("You do not own this stock!");
+        setTimeout(() => {
+          setErrorMessage(""); 
+        }, 3000);
       }
     }).catch((error) => {
       console.error(error);
@@ -239,6 +273,9 @@ function StockData() {
     const val = e.target.value;
     if (val < 0) {
       setErrorMessage("You have entered a negative quantity. Please amend accordingly.");
+      setTimeout(() => {
+        setErrorMessage(""); 
+      }, 3000);
     } else {
       setQuantity(val);
     }
@@ -248,6 +285,9 @@ function StockData() {
     const val = e.target.value;
     if (val < 0) {
       setErrorMessage("You have entered a negative price. Please amend accordingly.");
+      setTimeout(() => {
+        setErrorMessage(""); 
+      }, 3000);
     } else {
       setPrice(val);
     }
@@ -514,6 +554,7 @@ function StockData() {
         <Item>
           <div>
             {ErrorMessage ? <label className="danger">{ErrorMessage}</label> : null}
+            {SuccessMessage ? <label className="success">{SuccessMessage}</label> : null}
           </div>
         </Item>
       </Grid>
