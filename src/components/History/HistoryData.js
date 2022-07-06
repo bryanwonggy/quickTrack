@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { UserAuth } from "../../context/AuthContext";
-import Table from "./Table";
+import FilteringTable from "./FilteringTable";
 import { getDatabase, ref, set, onValue } from "firebase/database";
 
 function getRealtimeHistory(userId) {
@@ -32,31 +32,6 @@ function HistoryData() {
         user_email.split("@")[0] + user_email.split("@")[1]
     ).split(".")[0];
     const records = getRealtimeHistory(slicedUser);
-    const type = [];
-    const date = [];
-    const ticker = [];
-    const qty = [];
-    const price = [];
-    for (let i = 0; i < records.length; i++) {
-        type.push(records[i][1]);
-        date.push(records[i][0]);
-        ticker.push(records[i][2]);
-        qty.push(records[i][3]);
-        price.push(records[i][4]);
-    }
-
-    var rows = [];
-    for (var i = 0; i < records.length; i++) {
-        rows.push(
-            <tr>
-                <td>{type[i]}</td>
-                <td>{date[i]}</td>
-                <td>{ticker[i]}</td>
-                <td>{qty[i]}</td>
-                <td>{price[i]}</td>
-            </tr>
-        );
-    }
     const data = useMemo(() => records, []);
     const columns = useMemo(() => [
         {
@@ -82,8 +57,8 @@ function HistoryData() {
     ], []);
 
     return (
-        <div className="App">
-            <Table columns={columns} data={data} />
+        <div className="History">
+            <FilteringTable columns={columns} data={data} />
         </div>
     );
 }
