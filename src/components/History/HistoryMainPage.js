@@ -24,6 +24,7 @@ import { UserAuth } from "../../context/AuthContext";
 import { getDatabase, ref, set, onValue } from "firebase/database";
 import { Table } from "react-bootstrap";
 import { CastRounded } from "@mui/icons-material";
+import HistoryData from "./HistoryData"
 
 const drawerWidth = 240;
 
@@ -90,13 +91,13 @@ function getRealtimeHistory(userId) {
     snapshot.forEach((childSnapshot) => {
       let keyName = childSnapshot.key;
       let data = childSnapshot.val();
-      records.push([
-        data.date,
-        data.type,
-        data.ticker,
-        data.quantity,
-        data.price,
-      ]);
+      records.push({
+        "date": data.date,
+        "type": data.type,
+        "ticker": data.ticker,
+        "quantity": data.quantity,
+        "price": data.price,
+      });
     });
   });
   return records;
@@ -140,6 +141,7 @@ function DashboardContent() {
       </tr>
     );
   }
+  //console.log(records);
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -212,18 +214,7 @@ function DashboardContent() {
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
                   <Table>
-                    <thead>
-                      <tr>
-                        <th scope="col">Type</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Ticker</th>
-                        <th scope="col">Quantity</th>
-                        <th scope="col">Price ($)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rows}
-                    </tbody>
+                    <HistoryData />
                   </Table>
                 </Paper>
               </Grid>
