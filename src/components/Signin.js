@@ -24,7 +24,7 @@ const Signin = () => {
 
   return (
     <div className="max-w-[700px] mx-auto my-16 p-4">
-      <h1 className="text-4xl font-bold py-2 text-center">quickTrack</h1>
+      <img class="mx-auto h-50 w-50" src="quicktrack_logo.png" />
       <div>
         <h3 className="text-2xl font-bold py-2">Sign in to your account</h3>
         <p className="py-2">
