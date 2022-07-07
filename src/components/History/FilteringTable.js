@@ -23,7 +23,7 @@ export default function FilteringTable({ columns, data }) {
 
     return (
         <>
-        <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
+        <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} /> 
         <table {...getTableProps()}>
             <thead>
                 {headerGroups.map(headerGroup => (

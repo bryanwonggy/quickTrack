@@ -95,7 +95,7 @@ function CryptoData() {
         updateTicker(searchText.toLocaleUpperCase());
       })
       .catch(function (error) {
-        console.log(error);
+        console.log('error');
       });
 
     axios //NEW FOR STOCK INFO
@@ -406,7 +406,7 @@ function CryptoData() {
                 marker: { color: "red" },
               },
             ]}
-            layout={{ title: tickerSymbol }} //KIV Follow size of container dynamic
+            layout={{ title: tickerSymbol }} config={{responsive: true}} //KIV Follow size of container dynamic
           />
         </Item>
       </Grid>
