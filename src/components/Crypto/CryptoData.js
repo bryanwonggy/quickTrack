@@ -517,6 +517,7 @@ function CryptoData() {
                 <TextField
                   onChange={handleNegativePrice}
                   type="number"
+                  step="0.01"
                   placeholder="Enter Price"
                 ></TextField>
               </Grid>

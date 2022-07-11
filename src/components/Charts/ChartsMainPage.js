@@ -274,7 +274,7 @@ function DashboardContent() {
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
               {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
+              <Grid item xs={8} md={6} lg={6}>
                 <h4>Risk Allocation Chart</h4>
                   <Plot
                     data={[
@@ -290,7 +290,7 @@ function DashboardContent() {
                     }}
                   />
               </Grid>
-              <Grid item xs={12} md={8} lg={9}>
+              <Grid item xs={6}>
                 <h4>Stocks Portfolio</h4>
                   <Plot
                     data={[
@@ -306,7 +306,7 @@ function DashboardContent() {
                     }}
                   />
               </Grid>
-              <Grid item xs={12} md={8} lg={9}>
+              <Grid item xs={6}>
                 <h4>Crypto Portfolio</h4>
                   <Plot
                     data={[
