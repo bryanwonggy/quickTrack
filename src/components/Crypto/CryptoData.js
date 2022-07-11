@@ -35,7 +35,6 @@ const action = [
   },
 ];
 
-
 function getRelevantData(data) {
   const wantedInfo = [
     "symbol",
