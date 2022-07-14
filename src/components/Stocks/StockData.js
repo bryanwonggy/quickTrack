@@ -14,6 +14,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Button from "@mui/material/Button";
 import { UserAuth } from '../../context/AuthContext'
 import { getDatabase, ref, set, child, get, push, update, remove, onValue } from "firebase/database";
+import { el } from "date-fns/locale";
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -66,6 +67,7 @@ function StockData() {
   const [summaryData, updateSummaryData] = React.useState({});
   const { user, logout } = UserAuth();
   const [ErrorMessage, setErrorMessage] = React.useState("");
+  const [SuccessMessage, setSuccessMessage] = React.useState("");
 
   const [timeSeriesData, updateTimeSeriesData] = React.useState({
     stockChartXValues: [],
@@ -176,6 +178,12 @@ function StockData() {
           })
           addToHistory(userId, 'BUY', date, ticker, qty, price);
           updateCash(userId, qty * price * -1);
+
+          // success feedback 
+          setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         } else {
           // if the stock not in the portfolio
           set(stocksListRef, { 
@@ -185,9 +193,18 @@ function StockData() {
           })
           addToHistory(userId, 'BUY', date, ticker, qty, price);
           updateCash(userId, qty * price * -1);
+          
+          // success feedback 
+          setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         }
       } else {
         setErrorMessage("Insufficient funds, please top up!");
+        setTimeout(() => {
+          setErrorMessage(""); 
+        }, 3000);
       }
     }).catch((error) => {
       console.error(error);
@@ -213,25 +230,67 @@ function StockData() {
           })
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
+          
+          // success feedback 
+          setSuccessMessage(`You have successfully sold ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         } else if (old_qty === Number(qty)) {
           updatePL(userId, 'stocks', ticker, price, qty, date);
           remove(stocksListRef);
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
+          
+          // success feedback 
+          setSuccessMessage(`You have successfully sold ${qty} ${ticker} at $${price}.`);
+          setTimeout(() => {
+            setSuccessMessage(""); 
+          }, 5000);
         } else {
           // insufficient qty to sell 
           console.log("Insufficient stock to sell");
           setErrorMessage("Insufficient stock to sell");
+          setTimeout(() => {
+            setErrorMessage(""); 
+          }, 3000);
         }
   
       } else {
         // if the stock not in the portfolio
         console.log("You do not own this stock!");
         setErrorMessage("You do not own this stock!");
+        setTimeout(() => {
+          setErrorMessage(""); 
+        }, 3000);
       }
     }).catch((error) => {
       console.error(error);
     });
+  }
+
+  function handleNegativeQty(e) {
+    const val = e.target.value;
+    if (val < 0) {
+      setErrorMessage("You have entered a negative quantity. Please amend accordingly.");
+      setTimeout(() => {
+        setErrorMessage(""); 
+      }, 3000);
+    } else {
+      setQuantity(val);
+    }
+  }
+
+  function handleNegativePrice(e) {
+    const val = e.target.value;
+    if (val < 0) {
+      setErrorMessage("You have entered a negative price. Please amend accordingly.");
+      setTimeout(() => {
+        setErrorMessage(""); 
+      }, 3000);
+    } else {
+      setPrice(val);
+    }
   }
 
 
@@ -283,7 +342,7 @@ function StockData() {
 
 
   const [buysellaction, setBuySell] = React.useState("");
-  const [date, setDate] = React.useState(null);
+  const [date, setDate] = React.useState(new Date());
   const [stock, setStock] = React.useState("");
   const [quantity, setQuantity] = React.useState("");
   const [price, setPrice] = React.useState("");
@@ -306,6 +365,8 @@ function StockData() {
       if (buysellaction === "sell") {
         sellStock(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), stock, Number(quantity), Number(price));
       }
+      // clear form when submit is clicked
+      event.target.reset();
     } catch (error) {
       console.log(error);
     }
@@ -465,12 +526,12 @@ function StockData() {
                 <TextField
                   type="number"
                   placeholder="Enter Quantity"
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={handleNegativeQty}
                 ></TextField>
               </Grid>
               <Grid item xs={4}>
                 <TextField
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={handleNegativePrice}
                   type="number"
                   placeholder="Enter Price"
                 ></TextField>
@@ -493,6 +554,7 @@ function StockData() {
         <Item>
           <div>
             {ErrorMessage ? <label className="danger">{ErrorMessage}</label> : null}
+            {SuccessMessage ? <label className="success">{SuccessMessage}</label> : null}
           </div>
         </Item>
       </Grid>

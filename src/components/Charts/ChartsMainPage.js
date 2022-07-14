@@ -122,6 +122,49 @@ function getAllStocksCost(userId) {
   return sum;
 }
 
+function getIndivStocksCost(userId) {
+  const db = getDatabase();
+  const dbRef = ref(db, `users/${userId}/stocks`)
+
+  var labels = [];
+  var values = [];
+  var records = {};
+
+  onValue(dbRef, (snapshot) => {
+    snapshot.forEach((childSnapshot) => {
+      let keyName = childSnapshot.key;
+      let data = childSnapshot.val();
+      labels.push(keyName);
+      values.push(data.total_cost);
+    });
+  });
+  records['labels'] = labels;
+  records['values'] = values;
+  return records;
+}
+
+function getIndivCryptoCost(userId) {
+  const db = getDatabase();
+  const dbRef = ref(db, `users/${userId}/crypto`)
+
+  var labels = [];
+  var values = [];
+  var records = {};
+
+  onValue(dbRef, (snapshot) => {
+    snapshot.forEach((childSnapshot) => {
+      let keyName = childSnapshot.key;
+      let data = childSnapshot.val();
+      labels.push(keyName);
+      values.push(data.total_cost);
+    });
+  });
+  records['labels'] = labels;
+  records['values'] = values;
+  return records;
+}
+
+
 function getAllCryptoCost(userId) {
   const db = getDatabase();
   const dbRef = ref(db, `users/${userId}/crypto`);
@@ -160,6 +203,8 @@ function DashboardContent() {
   const current_cash = getCash(userId);
   const current_stockValue = getAllStocksCost(userId);
   const current_cryptoValue = getAllCryptoCost(userId);
+  const current_stockpf = getIndivStocksCost(userId);
+  const current_cryptopf = getIndivCryptoCost(userId);
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -229,7 +274,7 @@ function DashboardContent() {
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
               {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
+              <Grid item xs={8} md={6} lg={6}>
                 <h4>Risk Allocation Chart</h4>
                   <Plot
                     data={[
@@ -245,25 +290,38 @@ function DashboardContent() {
                     }}
                   />
               </Grid>
-              {/* Recent Deposits */}
-              {/* <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Deposits />
-                </Paper>
-              </Grid> */}
-              {/* Recent Orders */}
-              {/* <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                  <Orders />
-                </Paper>
-              </Grid> */}
+              <Grid item xs={6}>
+                <h4>Stocks Portfolio</h4>
+                  <Plot
+                    data={[
+                      {
+                        values: current_stockpf['values'], 
+                        labels: current_stockpf['labels'],
+                        type: "pie",
+                      },
+                    ]}
+                    layout={{
+                      height: 400,
+                      width: 500,
+                    }}
+                  />
+              </Grid>
+              <Grid item xs={6}>
+                <h4>Crypto Portfolio</h4>
+                  <Plot
+                    data={[
+                      {
+                        values: current_cryptopf['values'], 
+                        labels: current_cryptopf['labels'],
+                        type: "pie",
+                      },
+                    ]}
+                    layout={{
+                      height: 400,
+                      width: 500,
+                    }}
+                  />
+              </Grid>
             </Grid>
           </Container>
         </Box>

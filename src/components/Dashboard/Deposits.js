@@ -14,6 +14,7 @@ import {
   remove,
   onValue,
 } from "firebase/database";
+import { Unsubscribe } from "@mui/icons-material";
 
 export function getCurrentDate(separator = "/") {
   let newDate = new Date();
@@ -37,7 +38,8 @@ function getPL(userId) {
   var records = [];
 
   onValue(dbRef, (snapshot) => {
-    const pnl = snapshot.val().pnl;
+    const data = snapshot.val();
+    const pnl = data.pnl;
     records.push(pnl);
   });
   return records[0];
@@ -51,7 +53,7 @@ export default function Deposits() {
   const current_pnl = getPL(userId) != null ? getPL(userId).toFixed(2) : "0.00";
 
   const date = getCurrentDate();
-
+    
   return (
     <React.Fragment>
       <Title>Realised P/L</Title>

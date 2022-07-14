@@ -11,7 +11,6 @@ import Signup from "./components/Signup";
 import { AuthContextProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { getDatabase, ref, set, onValue, push } from "firebase/database";
 
 function App() {
   return (
@@ -35,48 +34,6 @@ function App() {
       </header>
     </div>
   );
-}
-
-function getStockDetails(userId) {
-  const db = getDatabase();
-  const dbRef = ref(db, `users/${userId}/stocks`);
-
-  var records = [];
-
-  onValue(dbRef, (snapshot) => {
-    snapshot.forEach((childSnapshot) => {
-      let keyName = childSnapshot.key;
-      let data = childSnapshot.val();
-      records.push([
-        keyName,
-        data.qty,
-        data.average_cost,
-        data.total_cost,
-      ]);
-    });
-  });
-  return records;
-}
-
-function getCryptoDetails(userId) {
-  const db = getDatabase();
-  const dbRef = ref(db, `users/${userId}/crypto`);
-
-  var records = [];
-
-  onValue(dbRef, (snapshot) => {
-    snapshot.forEach((childSnapshot) => {
-      let keyName = childSnapshot.key;
-      let data = childSnapshot.val();
-      records.push([
-        keyName,
-        data.qty,
-        data.average_cost,
-        data.total_cost,
-      ]);
-    });
-  });
-  return records;
 }
 
 
