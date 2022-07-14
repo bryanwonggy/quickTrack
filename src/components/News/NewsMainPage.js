@@ -25,8 +25,6 @@ import axios from "axios";
 import NewsItem from "./NewsItem";
 import { NewsContextProvider } from "./NewsContext";
 import News from "./News"
-import { CryptoContextProvider } from "./CryptoContext";
-import CryptoNews from "./CryptoNews";
 
 const drawerWidth = 240;
 
@@ -95,7 +93,73 @@ function DashboardContent() {
   const API_KEY_3 = "T7GOS9UY9JV7Y6QF";
   const [stockNews, updateStockNews] = React.useState([]);
   const [cryptoNews, updateCryptoNews] = React.useState({});
+  const tempStockNews = [];
+  var APICallString = `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=AAPL&apikey=${API_KEY_2}`;
 
+  // function searchForStock(event) {
+  //   var APICallString = `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers=AAPL&apikey=${API_KEY_2}`; //check AlphaVantage API (outputsize=full for full 20years data)
+
+  //   axios //NEW FOR STOCK INFO
+  //     .get(APICallString)
+  //     .then(function (response) {
+  //       for (let i = 0; i < 50; i++) {
+  //         tempStockNews.push(response.data.feed[i]);
+  //       }
+  //       updateStockNews(tempStockNews)
+  //     })
+  //     .catch(function (error) {
+  //       console.log(error);
+  //     });
+  // }
+
+  // searchForStock();
+  // console.log(stockNews)
+  // const searchForNews = async () => {
+  //   try {
+  //     const response = await axios.get(APICallString).then(function (response) {
+  //       for (let i = 0; i < 10; i++) {
+  //         tempStockNews.push(response.data.feed[i]);
+  //       }
+  //     });
+  //     updateStockNews(tempStockNews);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  // searchForNews()
+  // console.log("one");
+  // console.log(stockNews);
+  // console.log("two");
+
+  // React.useEffect(() => {
+  //   const getStockArticles = async () => {
+  //     const response = await axios.get(APICallString).then(function (response) {
+  //       for (let i = 0; i < 12; i++) {
+  //         tempStockNews.push(response.data.feed[i])
+  //       }
+  //     });
+  //     updateStockNews(tempStockNews)
+  //   };
+  //   // getStockArticles().then(function (response) {
+  //   //   for (let i = 0; i < 12; i++) {
+  //   //     tempStockNews.push(response.data.feed[i]);
+  //   //   }
+  //   // }).then;
+  //   getStockArticles();
+  // })
+
+  // React.useEffect(() => {
+  //   axios
+  //     .get(APICallString)
+  //     .then((response) => updateStockNews(response.data.feed))
+  //     .catch((error) => console.log(error));
+  // }, [stockNews]);
+
+  // console.log("here");
+  // console.log(tempStockNews);
+  // console.log("there");
+  // console.log(stockNews);
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -161,13 +225,15 @@ function DashboardContent() {
             overflow: "auto",
           }}
         >
-
+          <Toolbar />
+          <NewsContextProvider>
+            <News />
+          </NewsContextProvider>
         </Box>
       </Box>
     </ThemeProvider>
   );
 }
-
 
 export default function Dashboard() {
   return <DashboardContent />;
