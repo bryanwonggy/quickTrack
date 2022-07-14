@@ -1,0 +1,50 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: inter;
+    width: 97.5%;
+    margin: 0 auto;
+}
+
+.news {
+    max-width: 300px;
+}
+
+.all_news {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+    margin: 30px auto;
+    background: rgb(247, 253, 255)
+}
+
+.news {
+    max-width: 500px;
+    padding: 30px;
+    border: 1px solid lightgray;
+    border-radius: 5px
+}
+
+.news_title {
+    padding-bottom: 10px;
+    border-bottom: 1px solid lightgray;
+}
+
+.news_summary {
+    padding-top: 10px;
+    line-height: 25px;
+    font-size: 14px;
+}
+
+.StockNews {
+    text-align: center;
+    font-size: x-large;
+    font-style: oblique;
+    border-radius: 5px;
+    margin-top: 30px;
+
+}
