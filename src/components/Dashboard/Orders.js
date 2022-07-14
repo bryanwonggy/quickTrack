@@ -1,5 +1,5 @@
 import * as React from "react";
-import SortingTable from "../History/SortingTable";
+import SortingTable from "../Tables/SortingTable";
 import { UserAuth } from "../../context/AuthContext";
 import {
   getDatabase,
