@@ -83,7 +83,7 @@ function CryptoData() {
           tempStoreChartXValue.push(key);
           tempStoreChartYValue.push(
             response.data["Time Series (Digital Currency Daily)"][key][
-              "1b. open (USD)"
+            "1b. open (USD)"
             ]
           );
         }
@@ -131,11 +131,11 @@ function CryptoData() {
     const historyListRef = ref(db, `users/${userId}/history`);
     const newTxnRef = push(historyListRef);
     set(newTxnRef, {
-        type: type,
-        date: date,
-        ticker: ticker,
-        quantity: qty,
-        price: price
+      type: type,
+      date: date,
+      ticker: ticker,
+      quantity: qty,
+      price: price
     });
   }
 
@@ -151,7 +151,7 @@ function CryptoData() {
     });
     return records[0];
   }
-  
+
   function updatePL(userId, type, ticker, price, qty) {
     const db = getDatabase();
     const userRef = ref(db, `users/${userId}`);
@@ -185,7 +185,6 @@ function CryptoData() {
     return records[0];
   }
 
-
   function updateCash(userId, amount) {
     const db = getDatabase();
     const dbRef = ref(getDatabase());
@@ -200,7 +199,69 @@ function CryptoData() {
     })
   }
 
-  
+  function buyCrypto(userId, date, ticker, qty, price) {
+    const db = getDatabase();
+    const cryptoListRef = ref(db, 'users/' + userId + '/crypto/' + ticker)
+    const dbRef = ref(getDatabase());
+    var IEX_APICallString = `https://cloud.iexapis.com/stable/crypto/${ticker}usdt/quote?token=${IEX_API_KEY}`;
+
+    axios //NEW FOR STOCK INFO
+      .get(IEX_APICallString)
+      .then(function (response) {
+        get(child(dbRef, `users/${userId}/crypto/${ticker}`)).then((snapshot) => {
+          const old_cash = getCash(userId);
+          if (old_cash >= qty * price) {
+            // if the crypto already in your portfolio 
+            if (snapshot.exists()) {
+              const old_qty = Number(snapshot.val().qty);
+              const old_average_cost = Number(snapshot.val().average_cost);
+              const old_total_cost = Number(snapshot.val().total_cost);
+              update(cryptoListRef, {
+                qty: old_qty + Number(qty),
+                total_cost: old_total_cost + Number(qty * price),
+                average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
+              })
+              addToHistory(userId, 'BUY', date, ticker, qty, price);
+              updateCash(userId, qty * price * -1);
+
+              // success feedback
+              setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
+              setTimeout(() => {
+                setSuccessMessage("");
+              }, 5000);
+            } else {
+              // if the stock not already in the portfolio
+              set(cryptoListRef, {
+                qty: Number(qty),
+                total_cost: Number(qty * price),
+                average_cost: Number(price)
+              })
+              addToHistory(userId, 'BUY', date, ticker, qty, price);
+              updateCash(userId, qty * price * -1);
+
+              // success feedback
+              setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
+              setTimeout(() => {
+                setSuccessMessage("");
+              }, 5000);
+            }
+          } else {
+            // insufficient funds
+            setErrorMessage("Insufficient funds, please top up!");
+            setTimeout(() => {
+              setErrorMessage("");
+            }, 3000);
+          }
+        });
+      }).catch((error) => {
+        setErrorMessage("Ticker does not exist. Please amend accordingly.");
+        setTimeout(() => {
+          setErrorMessage("");
+        }, 3000);
+      });
+  }
+
+  /*
   function buyCrypto(userId, date, ticker, qty, price) {
     const db = getDatabase();
     const cryptoListRef = ref(db, 'users/' + userId + '/crypto/' + ticker)
@@ -242,7 +303,7 @@ function CryptoData() {
             setSuccessMessage(""); 
           }, 5000);
         }
-      } else {
+      } else {  
         // insufficient funds
         setErrorMessage("Insufficient funds, please top up!");
         setTimeout(() => {
@@ -253,7 +314,8 @@ function CryptoData() {
       console.error(error);
     });
   }
-  
+  */
+
   function sellCrypto(userId, date, ticker, qty, price) {
     const db = getDatabase();
     const cryptoListRef = ref(db, 'users/' + userId + '/crypto/' + ticker)
@@ -277,7 +339,7 @@ function CryptoData() {
           // success feedback
           setSuccessMessage(`You have successfully sold ${qty} ${ticker} at $${price}.`);
           setTimeout(() => {
-            setSuccessMessage(""); 
+            setSuccessMessage("");
           }, 5000);
         } else if (old_qty === Number(qty)) {
           updatePL(userId, 'crypto', ticker, price, qty);
@@ -288,23 +350,23 @@ function CryptoData() {
           // success feedback
           setSuccessMessage(`You have successfully sold ${qty} ${ticker} at $${price}.`);
           setTimeout(() => {
-            setSuccessMessage(""); 
+            setSuccessMessage("");
           }, 5000);
         } else {
           // insufficient qty to sell 
           console.log("Insufficient crypto to sell");
           setErrorMessage("Insufficient crypto to sell");
           setTimeout(() => {
-            setErrorMessage(""); 
+            setErrorMessage("");
           }, 3000);
         }
-  
+
       } else {
         // if the crypto not in the portfolio
         console.log("No such crypto available");
         setErrorMessage("You do not own this crypto!");
         setTimeout(() => {
-          setErrorMessage(""); 
+          setErrorMessage("");
         }, 3000);
       }
     }).catch((error) => {
@@ -317,7 +379,7 @@ function CryptoData() {
     if (val < 0) {
       setErrorMessage("You have entered a negative quantity. Please amend accordingly.");
       setTimeout(() => {
-        setErrorMessage(""); 
+        setErrorMessage("");
       }, 3000);
     } else {
       setQuantity(val);
@@ -329,7 +391,7 @@ function CryptoData() {
     if (val < 0) {
       setErrorMessage("You have entered a negative price. Please amend accordingly.");
       setTimeout(() => {
-        setErrorMessage(""); 
+        setErrorMessage("");
       }, 3000);
     } else {
       setPrice(val);
@@ -358,12 +420,13 @@ function CryptoData() {
       console.log(quantity);
       console.log(price);
       console.log(user.email);
+
       // executing of the functions into the database when submit
       if (buysellaction === "buy") {
-        buyCrypto(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), crypto, quantity, price);
-      } 
+        buyCrypto(userId, Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date), crypto, quantity, price);
+      }
       if (buysellaction === "sell") {
-        sellCrypto(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), crypto, quantity, price);
+        sellCrypto(userId, Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date), crypto, quantity, price);
       }
       // clear form when submit is clicked
       event.target.reset();
@@ -405,7 +468,7 @@ function CryptoData() {
                 marker: { color: "red" },
               },
             ]}
-            layout={{ title: tickerSymbol }} config={{responsive: true}} //KIV Follow size of container dynamic
+            layout={{ title: tickerSymbol }} //KIV Follow size of container dynamic
           />
         </Item>
       </Grid>
@@ -489,7 +552,7 @@ function CryptoData() {
               </Grid>
               <Grid item xs={4}>
                 <TextField
-                  onChange={(e) => setCrypto(e.target.value.toUpperCase())}
+                  onChange={(e) => setCrypto(e.target.value.toLocaleUpperCase())}
                   type="text"
                   placeholder="Choose Crypto"
                 ></TextField>

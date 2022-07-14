@@ -79,11 +79,11 @@ function StockData() {
     const historyListRef = ref(db, `users/${userId}/history`);
     const newTxnRef = push(historyListRef);
     set(newTxnRef, {
-        type: type,
-        date: date,
-        ticker: ticker,
-        quantity: qty,
-        price: price
+      type: type,
+      date: date,
+      ticker: ticker,
+      quantity: qty,
+      price: price
     });
   }
 
@@ -109,7 +109,7 @@ function StockData() {
       pnl: pnl
     });
   }
-  
+
   function updatePL(userId, type, ticker, price, qty, date) {
     const db = getDatabase();
     const userRef = ref(db, `users/${userId}`);
@@ -131,7 +131,7 @@ function StockData() {
     })
   }
 
-  
+
   function getCash(userId) {
     const db = getDatabase();
     const dbRef = ref(db, `users/${userId}`);
@@ -163,54 +163,63 @@ function StockData() {
     const db = getDatabase();
     const stocksListRef = ref(db, 'users/' + userId + '/stocks/' + ticker)
     const dbRef = ref(getDatabase());
-    get(child(dbRef, `users/${userId}/stocks/${ticker}`)).then((snapshot) => {
-      // if the stock already in your portfolio 
-      const old_cash = getCash(userId);
-      if (old_cash >= qty * price) {
-        if (snapshot.exists()) {
-          const old_qty = Number(snapshot.val().qty);
-          const old_average_cost = Number(snapshot.val().average_cost);
-          const old_total_cost = Number(snapshot.val().total_cost);
-          update(stocksListRef, {
-            qty: old_qty + Number(qty),
-            total_cost: old_total_cost + Number(qty * price),
-            average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
-          })
-          addToHistory(userId, 'BUY', date, ticker, qty, price);
-          updateCash(userId, qty * price * -1);
+    var IEX_APICallString = `https://cloud.iexapis.com/stable/stock/${ticker}/quote?token=${IEX_API_Key}`;
 
-          // success feedback 
-          setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
-          setTimeout(() => {
-            setSuccessMessage(""); 
-          }, 5000);
-        } else {
-          // if the stock not in the portfolio
-          set(stocksListRef, { 
-            qty: Number(qty),
-            total_cost: Number(qty * price),
-            average_cost: Number(price)
-          })
-          addToHistory(userId, 'BUY', date, ticker, qty, price);
-          updateCash(userId, qty * price * -1);
-          
-          // success feedback 
-          setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
-          setTimeout(() => {
-            setSuccessMessage(""); 
-          }, 5000);
-        }
-      } else {
-        setErrorMessage("Insufficient funds, please top up!");
+    axios //NEW FOR STOCK INFO
+      .get(IEX_APICallString)
+      .then(function (response) {
+        get(child(dbRef, `users/${userId}/stocks/${ticker}`)).then((snapshot) => {
+          // if the stock already in your portfolio 
+          const old_cash = getCash(userId);
+          if (old_cash >= qty * price) {
+            if (snapshot.exists()) {
+              const old_qty = Number(snapshot.val().qty);
+              const old_average_cost = Number(snapshot.val().average_cost);
+              const old_total_cost = Number(snapshot.val().total_cost);
+              update(stocksListRef, {
+                qty: old_qty + Number(qty),
+                total_cost: old_total_cost + Number(qty * price),
+                average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
+              })
+              addToHistory(userId, 'BUY', date, ticker, qty, price);
+              updateCash(userId, qty * price * -1);
+
+              // success feedback 
+              setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
+              setTimeout(() => {
+                setSuccessMessage("");
+              }, 5000);
+            } else {
+              // if the stock not in the portfolio
+              set(stocksListRef, {
+                qty: Number(qty),
+                total_cost: Number(qty * price),
+                average_cost: Number(price)
+              })
+              addToHistory(userId, 'BUY', date, ticker, qty, price);
+              updateCash(userId, qty * price * -1);
+
+              // success feedback 
+              setSuccessMessage(`You have successfully bought ${qty} ${ticker} at $${price}.`);
+              setTimeout(() => {
+                setSuccessMessage("");
+              }, 5000);
+            }
+          } else {
+            setErrorMessage("Insufficient funds, please top up!");
+            setTimeout(() => {
+              setErrorMessage("");
+            }, 3000);
+          }
+        })
+      }).catch((error) => {
+        setErrorMessage("Ticker does not exist. Please amend accordingly.");
         setTimeout(() => {
-          setErrorMessage(""); 
+          setErrorMessage("");
         }, 3000);
-      }
-    }).catch((error) => {
-      console.error(error);
-    });
+      });
   }
-  
+
   function sellStock(userId, date, ticker, qty, price) {
     const db = getDatabase();
     const stocksListRef = ref(db, 'users/' + userId + '/stocks/' + ticker)
@@ -230,38 +239,38 @@ function StockData() {
           })
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
-          
+
           // success feedback 
           setSuccessMessage(`You have successfully sold ${qty} ${ticker} at $${price}.`);
           setTimeout(() => {
-            setSuccessMessage(""); 
+            setSuccessMessage("");
           }, 5000);
         } else if (old_qty === Number(qty)) {
           updatePL(userId, 'stocks', ticker, price, qty, date);
           remove(stocksListRef);
           addToHistory(userId, 'SELL', date, ticker, qty, price);
           updateCash(userId, qty * price);
-          
+
           // success feedback 
           setSuccessMessage(`You have successfully sold ${qty} ${ticker} at $${price}.`);
           setTimeout(() => {
-            setSuccessMessage(""); 
+            setSuccessMessage("");
           }, 5000);
         } else {
           // insufficient qty to sell 
           console.log("Insufficient stock to sell");
           setErrorMessage("Insufficient stock to sell");
           setTimeout(() => {
-            setErrorMessage(""); 
+            setErrorMessage("");
           }, 3000);
         }
-  
+
       } else {
         // if the stock not in the portfolio
         console.log("You do not own this stock!");
         setErrorMessage("You do not own this stock!");
         setTimeout(() => {
-          setErrorMessage(""); 
+          setErrorMessage("");
         }, 3000);
       }
     }).catch((error) => {
@@ -274,7 +283,7 @@ function StockData() {
     if (val < 0) {
       setErrorMessage("You have entered a negative quantity. Please amend accordingly.");
       setTimeout(() => {
-        setErrorMessage(""); 
+        setErrorMessage("");
       }, 3000);
     } else {
       setQuantity(val);
@@ -286,7 +295,7 @@ function StockData() {
     if (val < 0) {
       setErrorMessage("You have entered a negative price. Please amend accordingly.");
       setTimeout(() => {
-        setErrorMessage(""); 
+        setErrorMessage("");
       }, 3000);
     } else {
       setPrice(val);
@@ -357,20 +366,20 @@ function StockData() {
       console.log(quantity);
       console.log(price);
       console.log(userId)
-      
+
       // executing of the functions into the database when submit
       if (buysellaction === "buy") {
-        buyStock(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), stock, Number(quantity), Number(price));
-      } 
+        buyStock(userId, Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date), stock, Number(quantity), Number(price));
+      }
       if (buysellaction === "sell") {
-        sellStock(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), stock, Number(quantity), Number(price));
+        sellStock(userId, Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date), stock, Number(quantity), Number(price));
       }
       // clear form when submit is clicked
       event.target.reset();
     } catch (error) {
       console.log(error);
     }
-  
+
   };
 
   return (

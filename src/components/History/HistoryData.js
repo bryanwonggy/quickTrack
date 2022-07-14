@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { UserAuth } from "../../context/AuthContext";
-import FilteringTable from "./FilteringTable";
+import FilteringTable from "../Tables/FilteringTable";
 import { getDatabase, ref, set, onValue } from "firebase/database";
 
 function getRealtimeHistory(userId) {
