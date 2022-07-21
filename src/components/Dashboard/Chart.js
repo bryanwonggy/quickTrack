@@ -5,9 +5,15 @@ import Title from './Title';
 import { getDatabase, ref, onValue } from "firebase/database";
 import { UserAuth } from '../../context/AuthContext'
 
-// Generate Sales Data
-function createData(time, amount) {
-  return { time, amount };
+// sort the data before displaying to confirm that it will be in order
+function compare(a, b) {
+  if (a.date < b.date) {
+    return -1;
+  }
+  if (a.date > b.date) {
+    return 1;
+  }
+  return 0;
 }
 
 function getPLHistory(userId) {
@@ -29,33 +35,20 @@ function getPLHistory(userId) {
   return records;
 }
 
-//console.log(data1);
-
-const data = [
-  createData('00:00', 0),
-  createData('03:00', 300),
-  createData('06:00', 600),
-  createData('09:00', 800),
-  createData('12:00', 1500),
-  createData('15:00', 2000),
-  createData('18:00', 2400),
-  createData('21:00', 2400),
-  createData('24:00', undefined),
-];
-
 export default function Chart() {
   const theme = useTheme();
   const { user, logout } = UserAuth();
   const userId = (user.email.split("@")[0] + user.email.split("@")[1]).split(".")[0];
 
-  const data1 = getPLHistory(userId);
+  const rawData = getPLHistory(userId);
+  const sortedData = rawData.sort(compare);
 
   return (
     <React.Fragment>
       <Title>Realised P/L over Time</Title>
       <ResponsiveContainer>
         <LineChart
-          data={data1}
+          data={sortedData}
           margin={{
             top: 16,
             right: 16,
