@@ -8,12 +8,9 @@ import {
 } from "firebase/database";
 import getCurrentStockPrice from "../APIFunctions/getCurrentStockPrice";
 import getCurrentCryptoPrice from "../APIFunctions/getCurrentCryptoPrice";
-import { red } from "@mui/material/colors";
 
 
 export default function Orders() {
-  const [currentStockPrice, updateCurrentStockPrice] = React.useState([]);
-
   function getStockDetails(userId) {
     const db = getDatabase();
     const dbRef = ref(db, `users/${userId}/stocks`);

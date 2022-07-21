@@ -14,7 +14,6 @@ import {
   remove,
   onValue,
 } from "firebase/database";
-import { Unsubscribe } from "@mui/icons-material";
 
 export function getCurrentDate(separator = "/") {
   let newDate = new Date();
