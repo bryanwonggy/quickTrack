@@ -18,7 +18,7 @@ function getRealtimeHistory(userId) {
                 "type": data.type,
                 "ticker": data.ticker,
                 "quantity": data.quantity,
-                "price": data.price,
+                "price": "$" + data.price,
             });
         });
     });
@@ -32,6 +32,8 @@ function HistoryData() {
         user_email.split("@")[0] + user_email.split("@")[1]
     ).split(".")[0];
     const records = getRealtimeHistory(slicedUser);
+
+    console.log(records);
     const data = useMemo(() => records, []);
     const columns = useMemo(() => [
         {
@@ -51,7 +53,7 @@ function HistoryData() {
             accessor: "quantity"
         },
         {
-            Header: "Price ($)",
+            Header: "Price",
             accessor: "price"
         }
     ], []);
