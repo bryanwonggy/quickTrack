@@ -1,7 +1,6 @@
 import React from "react";
 import { useTable, useSortBy, useGlobalFilter } from "react-table"; 
 import "./table.css";
-import { GlobalFilter } from "./GlobalFilter";
 
 export default function SortingTable({ columns, data }) {
     const {

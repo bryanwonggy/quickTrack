@@ -15,7 +15,6 @@ import Button from "@mui/material/Button";
 import { UserAuth } from '../../context/AuthContext'
 import { getDatabase, ref, set, child, get, push, update, remove, onValue } from "firebase/database";
 
-
 const Item = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.mode === "dark" ? "#1A2027" : "#fff",
   ...theme.typography.body2,
@@ -53,19 +52,24 @@ function getRelevantData(data) {
 }
 
 function CryptoData() {
+  // api keys for iex and alphavantage
+  const API_KEY = "R8QVYYFNVOKVRKP4"; //AlphaVantage
+  const IEX_API_KEY = "pk_7ae7f450e7bd4274a7e4ded7019573ae";
+
   const [searchText, updateTextFunc] = React.useState("");
   const [CryptoInfo, updateInfoFunc] = React.useState({});
-  const API_KEY = "R8QVYYFNVOKVRKP4"; //AlphaVantage
   const [tickerSymbol, updateTicker] = React.useState("");
-  const IEX_API_KEY = "pk_7ae7f450e7bd4274a7e4ded7019573ae";
   const [summaryData, updateSummaryData] = React.useState({});
+
+  // to set the error/success feedbacks
   const [ErrorMessage, setErrorMessage] = React.useState("");
   const [SuccessMessage, setSuccessMessage] = React.useState("");
 
+  // to plot time series data when searched 
   const [timeSeriesData, updateTimeSeriesData] = React.useState({
     cryptoChartXValues: [],
     cryptoChartYValues: [],
-  }); //toPlotChart
+  }); 
 
   function searchForCrypto(event) {
     var APICallString = `https://www.alphavantage.co/query?function=DIGITAL_CURRENCY_DAILY&symbol=${searchText}&market=CNY&apikey=${API_KEY}`; //check AlphaVantage API (outputsize=full for full 20years data)
@@ -74,7 +78,7 @@ function CryptoData() {
     let tempStoreChartYValue = [];
     let tempSummaryInfo = [];
 
-    axios
+    axios // for crypto time series
       .get(APICallString)
       .then(function (response) {
         console.log(response);
@@ -97,19 +101,11 @@ function CryptoData() {
         console.log('error');
       });
 
-    axios //NEW FOR STOCK INFO
+    axios // for crypto info
       .get(IEX_APICallString)
       .then(function (response) {
         console.log("HERE");
         console.log(response);
-        // for (let key in response) {
-        //   if (getRelevantData(key)) {
-        //     let str = JSON.stringify(response[key]);
-        //     tempSummaryInfo.push(str);
-        //   }
-        //   //   let str = JSON.stringify(key) + " : " + JSON.stringify(response.data[key]);
-        //   //   tempSummaryInfo.push(str);
-        // }
         for (let key in response.data) {
           if (getRelevantData(key)) {
             let obj = response.data[key];
@@ -124,7 +120,6 @@ function CryptoData() {
         console.log(error);
       });
   }
-
 
   function addToHistory(userId, type, date, ticker, qty, price) {
     const db = getDatabase();
@@ -152,7 +147,18 @@ function CryptoData() {
     return records[0];
   }
 
-  function updatePL(userId, type, ticker, price, qty) {
+  function addToPLHistory(userId, date, pnl) {
+    // for adding to new plHistory
+    const db = getDatabase();
+    const plHistoryRef = ref(db, `users/${userId}/pnlHistory`);
+    const newTxnRef = push(plHistoryRef);
+    set(newTxnRef, {
+      date: date,
+      pnl: pnl
+    });
+  }
+
+  function updatePL(userId, type, ticker, price, qty, date) {
     const db = getDatabase();
     const userRef = ref(db, `users/${userId}`);
     const dbRef = ref(getDatabase());
@@ -168,6 +174,7 @@ function CryptoData() {
         update(userRef, {
           pnl: new_amount
         })
+        addToPLHistory(userId, date, new_amount);
       }
     })
   }
@@ -204,6 +211,7 @@ function CryptoData() {
     const cryptoListRef = ref(db, 'users/' + userId + '/crypto/' + ticker)
     const dbRef = ref(getDatabase());
     var IEX_APICallString = `https://cloud.iexapis.com/stable/crypto/${ticker}usdt/quote?token=${IEX_API_KEY}`;
+    const handledDate = Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
 
     axios //NEW FOR STOCK INFO
       .get(IEX_APICallString)
@@ -219,9 +227,10 @@ function CryptoData() {
               update(cryptoListRef, {
                 qty: old_qty + Number(qty),
                 total_cost: old_total_cost + Number(qty * price),
-                average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
+                average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty)),
+                current_price: response.data['latestPrice']
               })
-              addToHistory(userId, 'BUY', date, ticker, qty, price);
+              addToHistory(userId, 'BUY', handledDate, ticker, qty, price);
               updateCash(userId, qty * price * -1);
 
               // success feedback
@@ -234,9 +243,10 @@ function CryptoData() {
               set(cryptoListRef, {
                 qty: Number(qty),
                 total_cost: Number(qty * price),
-                average_cost: Number(price)
+                average_cost: Number(price),
+                current_price: response.data['latestPrice']
               })
-              addToHistory(userId, 'BUY', date, ticker, qty, price);
+              addToHistory(userId, 'BUY', handledDate, ticker, qty, price);
               updateCash(userId, qty * price * -1);
 
               // success feedback
@@ -320,6 +330,8 @@ function CryptoData() {
     const db = getDatabase();
     const cryptoListRef = ref(db, 'users/' + userId + '/crypto/' + ticker)
     const dbRef = ref(getDatabase());
+    const handledDate = Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+
     get(child(dbRef, `users/${userId}/crypto/${ticker}`)).then((snapshot) => {
       // if the stock already in your portfolio 
       if (snapshot.exists()) {
@@ -327,13 +339,13 @@ function CryptoData() {
         const old_average_cost = Number(snapshot.val().average_cost);
         const old_total_cost = Number(snapshot.val().total_cost);
         if (old_qty > Number(qty)) {
-          updatePL(userId, 'crypto', ticker, price, qty);
+          updatePL(userId, 'crypto', ticker, price, qty, date);
           update(cryptoListRef, {
             qty: old_qty - Number(qty),
             total_cost: old_total_cost - Number(old_average_cost * qty),
             average_cost: (old_total_cost - Number(old_average_cost * qty)) / (old_qty - Number(qty))
           })
-          addToHistory(userId, 'SELL', date, ticker, qty, price);
+          addToHistory(userId, 'SELL', handledDate, ticker, qty, price);
           updateCash(userId, qty * price);
 
           // success feedback
@@ -342,9 +354,9 @@ function CryptoData() {
             setSuccessMessage("");
           }, 5000);
         } else if (old_qty === Number(qty)) {
-          updatePL(userId, 'crypto', ticker, price, qty);
+          updatePL(userId, 'crypto', ticker, price, qty, date);
           remove(cryptoListRef);
-          addToHistory(userId, 'SELL', date, ticker, qty, price);
+          addToHistory(userId, 'SELL', handledDate, ticker, qty, price);
           updateCash(userId, qty * price);
 
           // success feedback
@@ -423,10 +435,10 @@ function CryptoData() {
 
       // executing of the functions into the database when submit
       if (buysellaction === "buy") {
-        buyCrypto(userId, Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date), crypto, quantity, price);
+        buyCrypto(userId, date, crypto, quantity, price);
       }
       if (buysellaction === "sell") {
-        sellCrypto(userId, Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date), crypto, quantity, price);
+        sellCrypto(userId, date, crypto, quantity, price);
       }
       // clear form when submit is clicked
       event.target.reset();

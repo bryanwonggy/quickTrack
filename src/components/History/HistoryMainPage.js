@@ -9,21 +9,14 @@ import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import MainListItems from "../Sidebar/listItems";
-import Chart from "../Dashboard/Chart";
-import Deposits from "../Dashboard/Deposits";
-import Orders from "../Dashboard/Orders";
 import { UserAuth } from "../../context/AuthContext";
 import { getDatabase, ref, set, onValue } from "firebase/database";
-import { Table } from "react-bootstrap";
-import { CastRounded } from "@mui/icons-material";
 import HistoryData from "./HistoryData"
 
 const drawerWidth = 240;
@@ -115,33 +108,6 @@ function DashboardContent() {
   const slicedUser = (
     user_email.split("@")[0] + user_email.split("@")[1]
   ).split(".")[0];
-  const records = getRealtimeHistory(slicedUser);
-  const type = [];
-  const date = [];
-  const ticker = [];
-  const qty = [];
-  const price = [];
-  for (let i = 0; i < records.length; i++) {
-    type.push(records[i][1]);
-    date.push(records[i][0]);
-    ticker.push(records[i][2]);
-    qty.push(records[i][3]);
-    price.push(records[i][4]);
-  }
-
-  var rows = [];
-  for (var i = 0; i < records.length; i++) {
-    rows.push(
-      <tr>
-        <td>{type[i]}</td>
-        <td>{date[i]}</td>
-        <td>{ticker[i]}</td>
-        <td>{qty[i]}</td>
-        <td>{price[i]}</td>
-      </tr>
-    );
-  }
-  //console.log(records);
 
   return (
     <ThemeProvider theme={mdTheme}>

@@ -14,7 +14,6 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import Button from "@mui/material/Button";
 import { UserAuth } from '../../context/AuthContext'
 import { getDatabase, ref, set, child, get, push, update, remove, onValue } from "firebase/database";
-import { el } from "date-fns/locale";
 
 
 const Item = styled(Paper)(({ theme }) => ({
@@ -69,10 +68,11 @@ function StockData() {
   const [ErrorMessage, setErrorMessage] = React.useState("");
   const [SuccessMessage, setSuccessMessage] = React.useState("");
 
+  // to plot time series chart when searched
   const [timeSeriesData, updateTimeSeriesData] = React.useState({
     stockChartXValues: [],
     stockChartYValues: [],
-  }); //toPlotChart
+  }); 
 
   function addToHistory(userId, type, date, ticker, qty, price) {
     const db = getDatabase();
@@ -164,8 +164,9 @@ function StockData() {
     const stocksListRef = ref(db, 'users/' + userId + '/stocks/' + ticker)
     const dbRef = ref(getDatabase());
     var IEX_APICallString = `https://cloud.iexapis.com/stable/stock/${ticker}/quote?token=${IEX_API_Key}`;
+    const handledDate = Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
 
-    axios //NEW FOR STOCK INFO
+    axios //handle condition that the ticker must be an actual ticker
       .get(IEX_APICallString)
       .then(function (response) {
         get(child(dbRef, `users/${userId}/stocks/${ticker}`)).then((snapshot) => {
@@ -179,9 +180,10 @@ function StockData() {
               update(stocksListRef, {
                 qty: old_qty + Number(qty),
                 total_cost: old_total_cost + Number(qty * price),
-                average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty))
+                average_cost: (old_total_cost + Number(qty * price)) / (old_qty + Number(qty)),
+                current_price: response.data['latestPrice']
               })
-              addToHistory(userId, 'BUY', date, ticker, qty, price);
+              addToHistory(userId, 'BUY', handledDate, ticker, qty, price);
               updateCash(userId, qty * price * -1);
 
               // success feedback 
@@ -194,9 +196,10 @@ function StockData() {
               set(stocksListRef, {
                 qty: Number(qty),
                 total_cost: Number(qty * price),
-                average_cost: Number(price)
+                average_cost: Number(price),
+                current_price: response.data['latestPrice']
               })
-              addToHistory(userId, 'BUY', date, ticker, qty, price);
+              addToHistory(userId, 'BUY', handledDate, ticker, qty, price);
               updateCash(userId, qty * price * -1);
 
               // success feedback 
@@ -224,6 +227,8 @@ function StockData() {
     const db = getDatabase();
     const stocksListRef = ref(db, 'users/' + userId + '/stocks/' + ticker)
     const dbRef = ref(getDatabase());
+    const handledDate = Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date);
+
     get(child(dbRef, `users/${userId}/stocks/${ticker}`)).then((snapshot) => {
       // if the stock already in your portfolio 
       if (snapshot.exists()) {
@@ -237,7 +242,7 @@ function StockData() {
             total_cost: old_total_cost - Number(old_average_cost * qty),
             average_cost: (old_total_cost - Number(old_average_cost * qty)) / (old_qty - Number(qty))
           })
-          addToHistory(userId, 'SELL', date, ticker, qty, price);
+          addToHistory(userId, 'SELL', handledDate, ticker, qty, price);
           updateCash(userId, qty * price);
 
           // success feedback 
@@ -248,7 +253,7 @@ function StockData() {
         } else if (old_qty === Number(qty)) {
           updatePL(userId, 'stocks', ticker, price, qty, date);
           remove(stocksListRef);
-          addToHistory(userId, 'SELL', date, ticker, qty, price);
+          addToHistory(userId, 'SELL', handledDate, ticker, qty, price);
           updateCash(userId, qty * price);
 
           // success feedback 
@@ -310,10 +315,9 @@ function StockData() {
     let tempStoreChartYValue = [];
     let tempSummaryInfo = [];
 
-    axios
+    axios // for stock time series chart
       .get(APICallString)
       .then(function (response) {
-        // console.log(response);
         updateInfoFunc(response.data);
         for (let key in response.data["Time Series (Daily)"]) {
           tempStoreChartXValue.push(key);
@@ -331,7 +335,7 @@ function StockData() {
         console.log(error);
       });
 
-    axios //NEW FOR STOCK INFO
+    axios // for stock info
       .get(IEX_APICallString)
       .then(function (response) {
         for (let key in response.data) {
@@ -341,8 +345,6 @@ function StockData() {
           }
         }
         updateSummaryData(tempSummaryInfo);
-        console.log(summaryData);
-        console.log(summaryData);
       })
       .catch(function (error) {
         console.log(error);
@@ -369,10 +371,10 @@ function StockData() {
 
       // executing of the functions into the database when submit
       if (buysellaction === "buy") {
-        buyStock(userId, Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date), stock, Number(quantity), Number(price));
+        buyStock(userId, date, stock, Number(quantity), Number(price));
       }
       if (buysellaction === "sell") {
-        sellStock(userId, Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' }).format(date), stock, Number(quantity), Number(price));
+        sellStock(userId, date, stock, Number(quantity), Number(price));
       }
       // clear form when submit is clicked
       event.target.reset();
