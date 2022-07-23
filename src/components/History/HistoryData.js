@@ -33,7 +33,6 @@ function HistoryData() {
     ).split(".")[0];
     const records = getRealtimeHistory(slicedUser);
 
-    console.log(records);
     const data = useMemo(() => records, []);
     const columns = useMemo(() => [
         {
