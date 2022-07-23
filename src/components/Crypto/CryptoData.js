@@ -447,6 +447,10 @@ function CryptoData() {
     }
   };
 
+  const inputProps = {
+    step: 0.01
+  };
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={8}>
@@ -592,7 +596,7 @@ function CryptoData() {
                 <TextField
                   onChange={handleNegativePrice}
                   type="number"
-                  step="0.01"
+                  inputProps={inputProps}  
                   placeholder="Enter Price"
                 ></TextField>
               </Grid>

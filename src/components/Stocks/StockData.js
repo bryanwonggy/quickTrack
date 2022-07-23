@@ -381,8 +381,12 @@ function StockData() {
     } catch (error) {
       console.log(error);
     }
-
   };
+
+  const inputProps = {
+    step: 0.01
+  };
+
 
   return (
     <Grid container spacing={2}>
@@ -545,6 +549,7 @@ function StockData() {
                   onChange={handleNegativePrice}
                   type="number"
                   placeholder="Enter Price"
+                  inputProps={inputProps}
                 ></TextField>
               </Grid>
               <Grid item xs={4}>
