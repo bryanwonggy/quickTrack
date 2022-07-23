@@ -160,6 +160,7 @@ function CashData() {
       if (depositWithdrawAction == "withdraw") {
         withdrawCash(userId, Intl.DateTimeFormat('en-US', {year: 'numeric', month: '2-digit',day: '2-digit'}).format(date), price);
       }
+      event.target.reset();
     } catch (error) {
       console.log("pop up to be made still work in progress");
     }
