@@ -174,7 +174,7 @@ Shows the quantity of current specific stock/crypto held by user as well as the 
 ## Unified Modelling Language (UML Diagram):
 ![](/public/uml.png)
 
-### Further Implementation: 
+## Further Implementation: 
 
 | Feature     | Description     | 
 | ----------- | --------------- |
